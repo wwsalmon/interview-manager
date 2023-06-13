@@ -19,7 +19,7 @@ export default function Interview({dir, selected}: {dir: string, selected: strin
 
     useEffect(() => {
         onLoad();
-    }, []);
+    }, [dir, selected]);
 
     async function onLoad() {
         const content = await readTextFile(dir + "/" + selected, {dir: BaseDirectory.Home});
