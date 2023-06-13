@@ -1,16 +1,18 @@
-import { listen } from "@tauri-apps/api/event";
 import { open } from "@tauri-apps/api/dialog";
-import { useEffect, useState } from "react";
-import { readDir, BaseDirectory, FileEntry, writeTextFile, readTextFile } from "@tauri-apps/api/fs";
+import { listen } from "@tauri-apps/api/event";
+import { BaseDirectory, FileEntry, readDir, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
 import Modal from "react-modal";
-import fm from "front-matter";
+import Interview from "./components/Interview";
+import makeFile from "./utils/makeFile";
 
 export default function App() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpenLoading, setIsOpenLoading] = useState<boolean>(false);
   const [isNew, setIsNew] = useState<boolean>(false);
   const [isNewModal, setIsNewModal] = useState<boolean>(false);
-  const [dir, setDir] = useState<string | null>();
+  const [dir, setDir] = useState<string | null>(null);
   const [contents, setContents] = useState<FileEntry[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
   
@@ -18,11 +20,6 @@ export default function App() {
   const [newDate, setNewDate] = useState<string>("");
 
   const [newUrl, setNewUrl] = useState<string>("");
-
-  const [name, setName] = useState<string>("");
-  const [date, setDate] = useState<string>("");
-  const [body, setBody] = useState<string>("");
-  const [notes, setNotes] = useState<string>("");
 
   useEffect(() => {
     listen("menu-event", e => {
@@ -36,7 +33,7 @@ export default function App() {
         console.log(e);
       }
     });
-  }, []);
+  }, [dir]);
 
   useEffect(() => {
     if (isOpen) {
@@ -53,8 +50,14 @@ export default function App() {
   }, [isNew]);
 
   async function onOpen() {
+    if (isOpenLoading) return;
+
+    setIsOpenLoading(true);
+
     let filepath = await open({directory: true});
     setDir(filepath as string);
+    setSelected(null);
+    setIsOpenLoading(false);
   }
 
   async function onNew() {
@@ -82,11 +85,7 @@ export default function App() {
   }
 
   async function onCreate() {
-    const fileContent = `---
-name: "${newName}"
-date: "${newDate}"
-notes: ""
----`;
+    const fileContent = makeFile(newName, newDate, "", "");
 
     const fileName = encodeURIComponent(newName) + ".interview";
 
@@ -100,26 +99,6 @@ notes: ""
     setIsNewModal(false);
   }
 
-  useEffect(() => {
-    if (dir && selected) {
-      onSelect();
-    }
-  }, [selected]);
-
-  async function onSelect() {
-    const content = await readTextFile(dir + "/" + selected, {dir: BaseDirectory.AppConfig});
-
-    const parsed = fm(content);
-    const attributes = parsed.attributes as {[key: string]: string};
-
-    if (!(attributes.name && attributes.date && "notes" in attributes)) return;
-
-    setName(attributes.name);
-    setDate(attributes.date);
-    setNotes(attributes.notes);
-    setBody(parsed.body);
-  }
-
   return (
     <div>
       {dir ? (
@@ -128,11 +107,14 @@ notes: ""
             <p className="p-2 break-all border-b text-sm opacity-50">Project: {getProjectName()}</p>
             {contents.map((d) => (
               <button
-                className={classNames("p-4 block w-full text-left", selected === d.name ? "bg-white disabled" : "hover:bg-gray-200")}
+                className={classNames("p-4 block w-full text-left", selected === d.name ? "bg-white disabled border-t border-b" : "hover:bg-gray-200")}
                 key={d.name}
                 onClick={() => setSelected(d.name as string)}
               >{d.name}</button>
             ))}
+            {!contents.length && (
+              <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
+            )}
           </div>
           <Modal
             isOpen={isNewModal}
@@ -162,11 +144,15 @@ notes: ""
             >Create</button>
           </Modal>
           <div className="w-full">
-            <p>date: {date}, name: {name}</p>
+            {(dir && selected) ? (
+              <Interview dir={dir} selected={selected}/>
+            ) : (
+              <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
+            )}
           </div>
         </div>
       ) : (
-        <p className="p-4 text-center">No folder open</p>
+        <p className="p-4 text-center">No folder open, press Ctrl + O</p>
       )}
     </div>
   );

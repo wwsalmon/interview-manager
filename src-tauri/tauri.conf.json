@@ -43,6 +43,7 @@
     "windows": [
       {
         "fullscreen": false,
+        "maximized": true,
         "resizable": true,
         "title": "interview-manager",
         "width": 800,

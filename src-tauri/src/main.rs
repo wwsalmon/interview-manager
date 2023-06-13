@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
+use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, Manager};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -17,12 +17,16 @@ fn main() {
     let filemenu = Submenu::new("File", Menu::new()
         .add_item(CustomMenuItem::new("open", "Open Folder").accelerator("cmdOrControl+O"))
         .add_item(CustomMenuItem::new("new", "New File").accelerator("cmdOrControl+N"))
+        .add_item(CustomMenuItem::new("save", "Save File").accelerator("cmdOrControl+S"))
     );
 
     let editmenu = Submenu::new("Edit", Menu::new()
         .add_native_item(MenuItem::Copy)
         .add_native_item(MenuItem::Cut)
         .add_native_item(MenuItem::Paste)
+        .add_native_item(MenuItem::Undo)
+        .add_native_item(MenuItem::Redo)
+        .add_native_item(MenuItem::SelectAll)
     );
 
     let windowmenu = Submenu::new("Window", Menu::new()
@@ -45,6 +49,9 @@ fn main() {
             }
             "new" => {
                 let _ = event.window().emit("menu-event", "new-event");
+            }
+            "save" => {
+                let _ = event.window().emit("menu-event", "save-event");
             }
             _ => {}
         })
