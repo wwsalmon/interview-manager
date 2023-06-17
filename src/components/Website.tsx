@@ -88,8 +88,8 @@ export default function Website({dir, selected}: {dir: string, selected: string}
                 <div className="w-1/2 flex-shrink-0 flex-grow-0 border-r h-full overflow-hidden">
                     <iframe src={url} className="w-[133%] h-[133%] transform scale-75 origin-top-left"></iframe>
                 </div>
-                <div className="w-1/2 flex-shrink-0 flex-grow-0 px-8 h-full overflow-auto">
-                    <p className="text-xs uppercase font-bold my-8">Notes</p>
+                <div className="w-1/2 flex-shrink-0 flex-grow-0 p-8 h-full overflow-auto">
+                    <p className="text-xs uppercase font-bold mb-8">Notes</p>
                     <Textarea value={body} setValue={setBody} placeholder="Summary, good quotes, etc."/>
                 </div>
             </div>

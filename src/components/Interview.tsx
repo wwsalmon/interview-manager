@@ -78,13 +78,13 @@ export default function Interview({dir, selected}: {dir: string, selected: strin
                 <label className="text-xs uppercase font-bold mr-2">Date</label>
                 <input type="date" value={date} onChange={e => setDate(e.target.value)} className="mr-4 text-sm border p-1"/>
             </div>  
-            <div className="flex px-8 flex-grow-1" style={{height: "calc(100vh - 96px)"}}>
-                <div className="w-1/2 flex-shrink-0 flex-grow-0 pr-8 border-r h-full overflow-auto">
-                    <p className="text-xs uppercase font-bold my-8">Body</p>
+            <div className="flex flex-grow-1" style={{height: "calc(100vh - 96px)"}}>
+                <div className="w-1/2 flex-shrink-0 flex-grow-0 p-8 border-r h-full overflow-auto">
+                    <p className="text-xs uppercase font-bold mb-8">Body</p>
                     <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc."/>
                 </div>
-                <div className="w-1/2 flex-shrink-0 flex-grow-0 pl-8 h-full overflow-auto">
-                    <p className="text-xs uppercase font-bold my-8">Notes</p>
+                <div className="w-1/2 flex-shrink-0 flex-grow-0 p-8 h-full overflow-auto">
+                    <p className="text-xs uppercase font-bold mb-8">Notes</p>
                     <Textarea value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc."/>
                 </div>
             </div>
