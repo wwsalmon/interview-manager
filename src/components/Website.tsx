@@ -1,10 +1,8 @@
 import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import fm from "front-matter";
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
-import classNames from "classnames";
 import { listen } from "@tauri-apps/api/event";
-import makeLinkFile from "../utils/makeLinkFile";
+import makeWebsiteFile from "../utils/makeWebsiteFile";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
 export default function Website({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
@@ -26,19 +24,15 @@ export default function Website({dir, selected, afterDelete}: {dir: string, sele
     async function onLoad() {
         const content = await readTextFile(dir + "/" + selected, {dir: BaseDirectory.Home});
     
-        const parsed = fm(content);
-        const attributes = parsed.attributes as {[key: string]: string};
-
-        console.log(attributes);
+        const parsed = JSON.parse(content);
+        if (!(["url", "pub", "body", "name", "date"].every(d => Object.keys(parsed).includes(d)))) return;
     
-        if (!("name" in attributes && "date" in attributes && "url" in attributes && "pub" in attributes)) return;
-    
-        setContents({name: attributes.name, date: attributes.date, pub: attributes.pub, body: parsed.body, url: attributes.url});
+        setContents({name: parsed.name, date: parsed.date, pub: parsed.pub, body: parsed.body, url: parsed.url});
         
-        setName(attributes.name);
-        setDate(attributes.date);
-        setPub(attributes.pub);
-        setUrl(attributes.url);
+        setName(parsed.name);
+        setDate(parsed.date);
+        setPub(parsed.pub);
+        setUrl(parsed.url);
         setBody(parsed.body);
     }
 
@@ -65,7 +59,7 @@ export default function Website({dir, selected, afterDelete}: {dir: string, sele
 
         setIsLoading(true);
 
-        await writeTextFile(dir + "/" + selected, makeLinkFile(name, url, pub, date, body), {dir: BaseDirectory.Home});
+        await writeTextFile(dir + "/" + selected, makeWebsiteFile(name, url, pub, date, body), {dir: BaseDirectory.Home});
 
         await onLoad();
 

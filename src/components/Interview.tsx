@@ -1,5 +1,4 @@
 import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import fm from "front-matter";
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
@@ -22,18 +21,15 @@ export default function Interview({dir, selected, afterDelete}: {dir: string, se
     }, [dir, selected]);
 
     async function onLoad() {
-        const content = await readTextFile(dir + "/" + selected, {dir: BaseDirectory.Home});
+        const content = await readTextFile(dir + "/" + selected, {dir: BaseDirectory.Home});    
+        const parsed = JSON.parse(content);
+        if (!(["notes", "body", "name", "date"].every(d => Object.keys(parsed).includes(d)))) return;
     
-        const parsed = fm(content);
-        const attributes = parsed.attributes as {[key: string]: string};
-    
-        if (!("name" in attributes && "date" in attributes && "notes" in attributes)) return;
-    
-        setContents({name: attributes.name, date: attributes.date, notes: attributes.notes, body: parsed.body});
+        setContents({name: parsed.name, date: parsed.date, notes: parsed.notes, body: parsed.body});
         
-        setName(attributes.name);
-        setDate(attributes.date);
-        setNotes(attributes.notes);
+        setName(parsed.name);
+        setDate(parsed.date);
+        setNotes(parsed.notes);
         setBody(parsed.body);
     }
 

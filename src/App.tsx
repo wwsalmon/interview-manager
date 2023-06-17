@@ -5,7 +5,7 @@ import classNames from "classnames";
 import { ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
 import makeFile from "./utils/makeFile";
-import makeLinkFile from "./utils/makeLinkFile";
+import makeWebsiteFile from "./utils/makeWebsiteFile";
 import short from "short-uuid";
 import { invoke } from "@tauri-apps/api";
 import Website from "./components/Website";
@@ -39,20 +39,14 @@ export default function App() {
   const [contents, setContents] = useState<FileEntry[]>([]);
   const [selected, setSelected] = useState<string | null>(null);
 
-  const [isLink, setIsLink] = useState<boolean>(false);
-  const [isLinkLoading, setIsLinkLoading] = useState<boolean>(false);
+  const [isWebsite, setIsWebsite] = useState<boolean>(false);
+  const [isWebsiteLoading, setIsWebsiteLoading] = useState<boolean>(false);
   
   const [newName, setNewName] = useState<string>("");
   const [newDate, setNewDate] = useState<string>("");
 
   const [newUrl, setNewUrl] = useState<string>("");
   const [newPub, setNewPub] = useState<string>("");
-  // new name also used for links
-  // new date also used for links
-
-  useEffect(() => {
-    getMetaFromUrl("https://www.samsonzhang.com/").then(res => console.log(res));
-  }, []);
 
   useEffect(() => {
     listen("menu-event", e => {
@@ -106,7 +100,10 @@ export default function App() {
   async function afterOpen() {
     if (dir) {
       let files = await readDir(dir, { dir: BaseDirectory.Home, recursive: false });
-      files = files.filter(d => (d.name?.substring(d.name.length - 10) === ".interview") || (d.name?.substring(d.name.length - 8) === ".website"));
+      files = files.filter(d => {
+        const extension = d.name?.substring(d.name.length - 5);
+        return extension && [".szhi", ".szhw"].includes(extension);
+      });
       setContents(files);
     }
   }
@@ -114,7 +111,7 @@ export default function App() {
   async function fillInfoFromUrl() {
     if (!newUrl) return;
 
-    setIsLinkLoading(true);
+    setIsWebsiteLoading(true);
 
     try {
       const meta = await getMetaFromUrl(newUrl);
@@ -126,7 +123,7 @@ export default function App() {
       console.log(e);
     }
 
-    setIsLinkLoading(false);
+    setIsWebsiteLoading(false);
   }
 
   function getProjectName() {
@@ -136,9 +133,9 @@ export default function App() {
   }
 
   async function onCreate() {
-    const fileContent = isLink ? makeLinkFile(newName, newUrl, newPub, newDate, "") : makeFile(newName, newDate, "", "");
+    const fileContent = isWebsite ? makeWebsiteFile(newName, newUrl, newPub, newDate, "") : makeFile(newName, newDate, "", "");
 
-    const fileName = encodeURIComponent(newName).substring(0, 20)  + "-" + short.generate() + (isLink ? ".website" : ".interview");
+    const fileName = encodeURIComponent(newName).substring(0, 20)  + "-" + short.generate() + (isWebsite ? ".szhw" : ".szhi");
 
     await writeTextFile(dir + "/" + fileName, fileContent, {dir: BaseDirectory.Home});
 
@@ -152,9 +149,9 @@ export default function App() {
     setIsNewModal(false);
   }
 
-  const canCreate = newName && (!isLink || newUrl);
+  const canCreate = newName && (!isWebsite || newUrl);
 
-  const selectedIsLink = selected?.substring(selected.length - 8) === ".website";
+  const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
 
   return (
     <div>
@@ -179,19 +176,19 @@ export default function App() {
           >
             <div className="mb-6 flex items-center justify-center"> 
               <p className="font-bold mr-1">New</p>
-              <button onClick={() => setIsLink(false)} className={classNames(!isLink ? "font-bold bg-gray-100" : "opacity-50 hover:opacity-100", "p-1 border text-sm")}>interview</button>
-              <button onClick={() => setIsLink(true)} className={classNames(isLink ? "font-bold bg-gray-100" : "opacity-50 hover:opacity-100", "p-1 border text-sm")}>link</button>
+              <button onClick={() => setIsWebsite(false)} className={classNames(!isWebsite ? "font-bold bg-gray-100" : "opacity-50 hover:opacity-100", "p-1 border text-sm")}>interview</button>
+              <button onClick={() => setIsWebsite(true)} className={classNames(isWebsite ? "font-bold bg-gray-100" : "opacity-50 hover:opacity-100", "p-1 border text-sm")}>website</button>
             </div>
-            {isLink && (
+            {isWebsite && (
               <>
                 <Label>URL</Label>
                 <input type="text" className="border w-full p-2 mb-6" placeholder="ex. https://www.sacbee.com/..." value={newUrl} onChange={e => setNewUrl(e.target.value)}/>
-                <button onClick={fillInfoFromUrl} disabled={!newUrl || isLinkLoading} className="mb-6 p-1 text-sm border disabled:opacity-50 bg-gray-700 text-white">{isLinkLoading ? "Loading..." : "Get info from URL"}</button>
+                <button onClick={fillInfoFromUrl} disabled={!newUrl || isWebsiteLoading} className="mb-6 p-1 text-sm border disabled:opacity-50 bg-gray-700 text-white">{isWebsiteLoading ? "Loading..." : "Get info from URL"}</button>
               </>
             )}
             <Label>Name</Label>
             <input type="text" className="border w-full p-2 mb-6" placeholder="ex. Tim interview" value={newName} onChange={e => setNewName(e.target.value)}/>
-            {isLink && (
+            {isWebsite && (
               <>
                 <Label>Publication</Label>
                 <input type="text" className="border w-full p-2 mb-6" placeholder="ex. The Sacramento Bee" value={newPub} onChange={e => setNewPub(e.target.value)}/>
@@ -206,7 +203,7 @@ export default function App() {
             >Create</button>
           </Modal>
           <div style={{width: "calc(100% - 256px)"}}>
-            {(dir && selected) ? selectedIsLink ? (
+            {(dir && selected) ? selectedIsWebsite ? (
               <Website dir={dir} selected={selected} afterDelete={() => {
                 setSelected(null);
                 afterOpen();
