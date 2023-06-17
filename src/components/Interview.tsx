@@ -2,9 +2,9 @@ import { BaseDirectory, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import fm from "front-matter";
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
-import classNames from "classnames";
 import { listen } from "@tauri-apps/api/event";
 import makeFile from "../utils/makeFile";
+import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
 export default function Interview({dir, selected}: {dir: string, selected: string}) {
     const [name, setName] = useState<string>("");
@@ -71,27 +71,27 @@ export default function Interview({dir, selected}: {dir: string, selected: strin
     }
 
     return (
-        <div className="h-screen flex flex-col border-l border-t">
-            <div className="px-4 flex items-center h-12 flex-shrink-0 border-b">
-                <label className="text-xs uppercase font-bold mr-2">Name</label>
-                <input type="text" value={name} onChange={e => setName(e.target.value)} className="mr-4 text-sm border p-1"/>
-                <label className="text-xs uppercase font-bold mr-2">Date</label>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)} className="mr-4 text-sm border p-1"/>
-            </div>  
-            <div className="flex flex-grow-1" style={{height: "calc(100vh - 96px)"}}>
-                <div className="w-1/2 flex-shrink-0 flex-grow-0 p-8 border-r h-full overflow-auto">
-                    <p className="text-xs uppercase font-bold mb-8">Body</p>
-                    <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc."/>
-                </div>
-                <div className="w-1/2 flex-shrink-0 flex-grow-0 p-8 h-full overflow-auto">
-                    <p className="text-xs uppercase font-bold mb-8">Notes</p>
-                    <Textarea value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc."/>
-                </div>
-            </div>
-            <div className="h-12 border-t w-full flex items-center px-4 flex-shrink-0">
-                <button disabled={!hasUnsaved || isLoading} onClick={onSave} className="px-4 py-1 text-sm text-white bg-gray-800 disabled:opacity-50">Save (Cmd + S)</button>
-                <p className={classNames("text-sm ml-4", (!isLoading && hasUnsaved) ? "text-red-500" : "opacity-50")}>{isLoading ? "Saving..." : hasUnsaved ? "Unsaved changes" : "All changes saved"}</p>
-            </div>
-        </div>
+        <Container
+            topbar={(
+                <>
+                    <TopbarLabel>Name</TopbarLabel>
+                    <TopbarInput type="text" value={name} onChange={e => setName(e.target.value)}/>
+                    <TopbarLabel>Date</TopbarLabel>
+                    <TopbarInput type="date" value={date} onChange={e => setDate(e.target.value)} className="w-24"/>
+                </>
+            )}
+            isLoading={isLoading}
+            hasUnsaved={hasUnsaved}
+            onSave={onSave}
+        >
+            <HalfContainer borderRight={true}>
+                <AreaLabel>Body</AreaLabel>
+                <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc."/>
+            </HalfContainer>
+            <HalfContainer>
+                <AreaLabel>Notes</AreaLabel>
+                <Textarea value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc."/>
+            </HalfContainer>
+        </Container>
     )
 }

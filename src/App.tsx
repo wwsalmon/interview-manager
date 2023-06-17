@@ -217,7 +217,7 @@ export default function App() {
               onClick={onCreate}
             >Create</button>
           </Modal>
-          <div className="w-full">
+          <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsLink ? (
               <Website dir={dir} selected={selected}/>
             ) : (
