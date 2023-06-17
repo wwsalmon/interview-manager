@@ -9,6 +9,7 @@ import makeFile from "./utils/makeFile";
 import makeLinkFile from "./utils/makeLinkFile";
 import short from "short-uuid";
 import { invoke } from "@tauri-apps/api";
+import Website from "./components/Website";
 
 // https://gist.github.com/RavenHursT/fe8a95a59109096ac1f8
 const getRoot = (url = "") => (new URL(url)).hostname.split(".").slice(-2).join(".");
@@ -25,7 +26,7 @@ async function getMetaFromUrl(url: string) {
   const html = parser.parseFromString(message as string, "text/html");
   const name = html.querySelector("meta[property='og:title']")?.getAttribute("content") || "";
   const pub = html.querySelector("meta[property='og:site_name']")?.getAttribute("content") || getRoot(url);
-  const date = html.querySelector("meta[property='article:published_time']")?.getAttribute("content") || "";
+  const date = html.querySelector("meta[property='article:published_time']")?.getAttribute("content")?.substring(0, 10) || "";
   return {name, pub, date};
 }
 
@@ -153,11 +154,13 @@ export default function App() {
 
   const canCreate = newName && (!isLink || newUrl);
 
+  const selectedIsLink = selected?.substring(selected.length - 8) === ".website";
+
   return (
     <div>
       {dir ? (
-        <div className="flex h-full min-h-screen">
-          <div className="w-64 bg-gray-100 flex-shrink-0">
+        <div className="flex h-full h-screen">
+          <div className="w-64 bg-gray-100 flex-shrink-0 overflow-auto">
             <p className="p-2 break-all border-b text-sm opacity-50">Project: {getProjectName()}</p>
             {contents.map((d) => (
               <button
@@ -215,7 +218,9 @@ export default function App() {
             >Create</button>
           </Modal>
           <div className="w-full">
-            {(dir && selected) ? (
+            {(dir && selected) ? selectedIsLink ? (
+              <Website dir={dir} selected={selected}/>
+            ) : (
               <Interview dir={dir} selected={selected}/>
             ) : (
               <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
