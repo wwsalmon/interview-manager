@@ -1,12 +1,25 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use tauri::{CustomMenuItem, Menu, MenuItem, Submenu, Manager};
+extern crate reqwest;
+
+use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust!", name)
+async fn get_meta_from_url(url: &str) -> Result<String, String> {
+    println!("{:?}", url);
+
+    let res = reqwest::get(url).await.unwrap().text().await.map_err(|err| err.to_string());
+
+    println!("{:?}", res);
+
+    let ret = match res {
+        Ok(body) => Ok(body.into()),
+        Err(error) => Err(error.into())
+    };
+
+    ret
 }
 
 fn main() {
@@ -41,7 +54,7 @@ fn main() {
         .add_submenu(windowmenu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
+        .invoke_handler(tauri::generate_handler![get_meta_from_url])
         .menu(menu)
         .on_menu_event(|event| match event.menu_item_id() {
             "open" => {
