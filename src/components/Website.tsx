@@ -1,4 +1,4 @@
-import { BaseDirectory, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
 import fm from "front-matter";
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
@@ -7,7 +7,7 @@ import { listen } from "@tauri-apps/api/event";
 import makeLinkFile from "../utils/makeLinkFile";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
-export default function Website({dir, selected}: {dir: string, selected: string}) {
+export default function Website({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
     const [name, setName] = useState<string>("");
     const [url, setUrl] = useState<string>("");
     const [pub, setPub] = useState<string>("");
@@ -73,6 +73,16 @@ export default function Website({dir, selected}: {dir: string, selected: string}
         setIsSaving(false);
     }
 
+    async function onDelete() {
+        if (isLoading) return;
+
+        setIsLoading(true);
+
+        await removeFile(dir + "/" + selected, {dir: BaseDirectory.Home});
+
+        afterDelete();
+    }
+
     return (
         <Container
             topbar={(
@@ -90,6 +100,7 @@ export default function Website({dir, selected}: {dir: string, selected: string}
             isLoading={isLoading}
             hasUnsaved={hasUnsaved}
             onSave={onSave}
+            onDelete={onDelete}
         >
             <div className="w-1/2 flex-shrink-0 flex-grow-0 border-r h-full overflow-hidden">
                 <iframe src={url} className="w-[133%] h-[133%] transform scale-75 origin-top-left"></iframe>

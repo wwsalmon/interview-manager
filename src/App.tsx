@@ -3,13 +3,13 @@ import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, FileEntry, readDir, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ReactNode, useEffect, useState } from "react";
-import Modal from "react-modal";
 import Interview from "./components/Interview";
 import makeFile from "./utils/makeFile";
 import makeLinkFile from "./utils/makeLinkFile";
 import short from "short-uuid";
 import { invoke } from "@tauri-apps/api";
 import Website from "./components/Website";
+import Modal from "./components/Modal";
 
 // https://gist.github.com/RavenHursT/fe8a95a59109096ac1f8
 const getRoot = (url = "") => (new URL(url)).hostname.split(".").slice(-2).join(".");
@@ -175,19 +175,7 @@ export default function App() {
           </div>
           <Modal
             isOpen={isNewModal}
-            onRequestClose={() => setIsNewModal(false)}
-            style={{
-              overlay: {
-                backgroundColor: "rgba(0,0,0,0.5)",
-              },
-              content: {
-                maxWidth: "400px",
-                left: "50%",
-                top: "50%",
-                transform: "translate(-50%, -50%)",
-                height: "auto",
-              }
-            }}
+            setIsOpen={setIsNewModal}
           >
             <div className="mb-6 flex items-center justify-center"> 
               <p className="font-bold mr-1">New</p>
@@ -219,9 +207,15 @@ export default function App() {
           </Modal>
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsLink ? (
-              <Website dir={dir} selected={selected}/>
+              <Website dir={dir} selected={selected} afterDelete={() => {
+                setSelected(null);
+                afterOpen();
+              }}/>
             ) : (
-              <Interview dir={dir} selected={selected}/>
+              <Interview dir={dir} selected={selected} afterDelete={() => {
+                setSelected(null);
+                afterOpen();
+              }}/>
             ) : (
               <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
             )}

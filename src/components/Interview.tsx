@@ -1,4 +1,4 @@
-import { BaseDirectory, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
 import fm from "front-matter";
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
@@ -6,7 +6,7 @@ import { listen } from "@tauri-apps/api/event";
 import makeFile from "../utils/makeFile";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
-export default function Interview({dir, selected}: {dir: string, selected: string}) {
+export default function Interview({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
     const [name, setName] = useState<string>("");
     const [date, setDate] = useState<string>("");
     const [body, setBody] = useState<string>("");
@@ -27,7 +27,7 @@ export default function Interview({dir, selected}: {dir: string, selected: strin
         const parsed = fm(content);
         const attributes = parsed.attributes as {[key: string]: string};
     
-        if (!(attributes.name && attributes.date && "notes" in attributes)) return;
+        if (!("name" in attributes && "date" in attributes && "notes" in attributes)) return;
     
         setContents({name: attributes.name, date: attributes.date, notes: attributes.notes, body: parsed.body});
         
@@ -60,14 +60,22 @@ export default function Interview({dir, selected}: {dir: string, selected: strin
 
         setIsLoading(true);
 
-        console.log(makeFile(name, date, body, notes));
-
         await writeTextFile(dir + "/" + selected, makeFile(name, date, body, notes), {dir: BaseDirectory.Home});
 
         await onLoad();
 
         setIsLoading(false);
         setIsSaving(false);
+    }
+
+    async function onDelete() {
+        if (isLoading) return;
+
+        setIsLoading(true);
+
+        await removeFile(dir + "/" + selected, {dir: BaseDirectory.Home});
+
+        afterDelete();
     }
 
     return (
@@ -83,6 +91,7 @@ export default function Interview({dir, selected}: {dir: string, selected: strin
             isLoading={isLoading}
             hasUnsaved={hasUnsaved}
             onSave={onSave}
+            onDelete={onDelete}
         >
             <HalfContainer borderRight={true}>
                 <AreaLabel>Body</AreaLabel>
