@@ -34,6 +34,7 @@ async fn get_meta_from_url(url: &str) -> Result<String, String> {
 fn main() {
     let firstmenu = Submenu::new("First", Menu::new()
         .add_native_item(MenuItem::Quit)
+        .add_item(CustomMenuItem::new("settings", "Settings").accelerator("cmdOrControl+,"))
     );
 
     let filemenu = Submenu::new("File", Menu::new()
@@ -74,6 +75,9 @@ fn main() {
             }
             "save" => {
                 let _ = event.window().emit("menu-event", "save-event");
+            }
+            "settings" => {
+                let _ = event.window().emit("menu-event", "settings-event");
             }
             _ => {}
         })
