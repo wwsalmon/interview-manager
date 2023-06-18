@@ -1,17 +1,14 @@
+import { invoke } from "@tauri-apps/api";
 import { open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ComponentPropsWithRef, ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
-import makeFile from "./utils/makeFile";
-import makeWebsiteFile from "./utils/makeWebsiteFile";
-import short from "short-uuid";
-import { invoke } from "@tauri-apps/api";
-import Website from "./components/Website";
-import Modal from "./components/Modal";
-import SidebarFile from "./components/SidebarFile";
+import NewFileModal from "./components/NewFileModal";
 import SettingsModal from "./components/SettingsModal";
+import SidebarFile from "./components/SidebarFile";
+import Website from "./components/Website";
 
 export interface InterviewFile {
   name: string,
@@ -73,16 +70,6 @@ export default function App() {
   const [dir, setDir] = useState<string | null>(null);
   const [contents, setContents] = useState<FileContent[]>([]);
   const [selected, setSelected] = useState<string>("");
-
-  const [isWebsite, setIsWebsite] = useState<boolean>(false);
-  const [isWebsiteLoading, setIsWebsiteLoading] = useState<boolean>(false);
-  const [websiteError, setWebsiteError] = useState<string>("");
-  
-  const [newName, setNewName] = useState<string>("");
-  const [newDate, setNewDate] = useState<string>("");
-
-  const [newUrl, setNewUrl] = useState<string>("");
-  const [newPub, setNewPub] = useState<string>("");
 
   const [settings, setSettings] = useState<Settings>({recent: [], revKey: ""});
 
@@ -189,49 +176,11 @@ export default function App() {
     }
   }
 
-  async function fillInfoFromUrl() {
-    if (!newUrl) return;
-
-    setIsWebsiteLoading(true);
-    setWebsiteError("");
-
-    try {
-      const meta = await getMetaFromUrl(newUrl);
-
-      setNewName(meta.name);
-      setNewPub(meta.pub);
-      setNewDate(meta.date);
-    } catch (e) {
-      setWebsiteError(e as string);
-    }
-
-    setIsWebsiteLoading(false);
-  }
-
   function getProjectName() {
     if (!dir) return "";
     const dirSplit = dir.split("/");
     return dirSplit[dirSplit.length - 1];
   }
-
-  async function onCreate() {
-    const fileContent = isWebsite ? makeWebsiteFile(newName, newUrl, newPub, newDate, "") : makeFile(newName, newDate, "", "");
-
-    const fileName = encodeURIComponent(newName).substring(0, 20)  + "-" + short.generate() + (isWebsite ? ".szhw" : ".szhi");
-
-    await writeTextFile(dir + "/" + fileName, fileContent, {dir: BaseDirectory.Home});
-
-    await afterOpen();
-
-    setSelected(fileName);
-    setNewName("");
-    setNewDate("");
-    setNewUrl("");
-    setNewPub("");
-    setIsNewModal(false);
-  }
-
-  const canCreate = newName && (!isWebsite || newUrl);
 
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
 
@@ -248,41 +197,7 @@ export default function App() {
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
             )}
           </div>
-          <Modal
-            isOpen={isNewModal}
-            setIsOpen={setIsNewModal}
-          >
-            <div className="mb-6 flex items-center justify-center"> 
-              <p className="font-bold mr-1">New</p>
-              <button onClick={() => setIsWebsite(false)} className={classNames(!isWebsite ? "font-bold bg-gray-100" : "opacity-50 hover:opacity-100", "p-1 border text-sm")}>interview</button>
-              <button onClick={() => setIsWebsite(true)} className={classNames(isWebsite ? "font-bold bg-gray-100" : "opacity-50 hover:opacity-100", "p-1 border text-sm")}>website</button>
-            </div>
-            {isWebsite && (
-              <>
-                <ModalLabel>URL</ModalLabel>
-                <ModalInput placeholder="ex. https://www.sacbee.com/..." value={newUrl} onChange={e => setNewUrl(e.target.value)}/>
-                <button onClick={fillInfoFromUrl} disabled={!newUrl || isWebsiteLoading} className="mb-6 p-1 text-sm border disabled:opacity-50 bg-gray-700 text-white">{isWebsiteLoading ? "Loading..." : "Get info from URL"}</button>
-                {websiteError && (
-                  <p className="text-xs text-red-500 mb-6 break-all"><span className="font-bold">Error getting info from URL:</span> <span className="font-mono">{websiteError}</span>.<br/><br/>You can still save this URL by adding a name manually.</p>
-                )}
-              </>
-            )}
-            <ModalLabel>Name</ModalLabel>
-            <ModalInput placeholder="ex. Tim interview" value={newName} onChange={e => setNewName(e.target.value)}/>
-            {isWebsite && (
-              <>
-                <ModalLabel>Publication</ModalLabel>
-                <ModalInput placeholder="ex. The Sacramento Bee" value={newPub} onChange={e => setNewPub(e.target.value)}/>
-              </>
-            )}
-            <ModalLabel>Date</ModalLabel>
-            <ModalInput type="date" value={newDate} onChange={e => setNewDate(e.target.value)}/>
-            <button
-              className="w-full bg-gray-800 p-2 text-white mt-auto disabled:opacity-50"
-              disabled={!canCreate}
-              onClick={onCreate}
-            >Create</button>
-          </Modal>
+          <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected}/>
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsWebsite ? (
               <Website dir={dir} selected={selected} afterDelete={() => {
