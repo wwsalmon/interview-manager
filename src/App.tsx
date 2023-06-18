@@ -2,7 +2,7 @@ import { open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
-import { ReactNode, useEffect, useState } from "react";
+import { ComponentPropsWithRef, ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
 import makeFile from "./utils/makeFile";
 import makeWebsiteFile from "./utils/makeWebsiteFile";
@@ -11,6 +11,7 @@ import { invoke } from "@tauri-apps/api";
 import Website from "./components/Website";
 import Modal from "./components/Modal";
 import SidebarFile from "./components/SidebarFile";
+import SettingsModal from "./components/SettingsModal";
 
 export interface InterviewFile {
   name: string,
@@ -31,12 +32,26 @@ export interface WebsiteFile {
 
 export type FileContent = InterviewFile | WebsiteFile;
 
+export interface Settings {
+  recent: string[],
+  revKey: string,
+}
+
 // https://gist.github.com/RavenHursT/fe8a95a59109096ac1f8
 const getRoot = (url = "") => (new URL(url)).hostname.split(".").slice(-2).join(".");
 
-function Label({children}: {children: ReactNode}) {
+export function ModalLabel({children, className}: {children: ReactNode, className?: string}) {
   return (
-    <p className="uppercase mb-2 text-sm tracking-wide font-bold">{children}</p>
+    <p className={classNames("uppercase mb-2 text-sm tracking-wide font-bold", className)}>{children}</p>
+  )
+}
+
+export function ModalInput(props: ComponentPropsWithRef<"input">) {
+  let domProps = {...props};
+  delete domProps.className;
+
+  return (
+    <input className={classNames("border w-full p-2 mb-6", props.className)} {...domProps}/>
   )
 }
 
@@ -69,7 +84,9 @@ export default function App() {
   const [newUrl, setNewUrl] = useState<string>("");
   const [newPub, setNewPub] = useState<string>("");
 
-  const [settings, setSettings] = useState<{recent: string[], revKey: string}>({recent: [], revKey: ""});
+  const [settings, setSettings] = useState<Settings>({recent: [], revKey: ""});
+
+  const [isSettings, setIsSettings] = useState<boolean>(false);
 
   async function initSettings() {
     const hasSettings = await exists("settings.json", {dir: BaseDirectory.AppConfig});
@@ -93,6 +110,7 @@ export default function App() {
   }, []);
 
   async function updateRecent(newDir: string) {
+    if (!newDir) return;
     let newSettings = {...settings};
     newSettings.recent = [newDir, ...settings.recent.filter(d => d !== newDir).slice(0, 5)];
     setSettings(newSettings);
@@ -106,6 +124,8 @@ export default function App() {
           setIsOpen(true);
         } else if (e.payload === "new-event") {
           setIsNew(true);
+        } else if (e.payload === "settings-event") {
+          setIsSettings(true);
         }
       } catch (e) {
         console.log(e);
@@ -133,6 +153,10 @@ export default function App() {
     setIsOpenLoading(true);
 
     let filepath = await open({directory: true});
+    if (!filepath) {
+      setIsOpenLoading(false);
+      return;
+    }
     setDir(filepath as string);
     updateRecent(filepath as string);
     setSelected("");
@@ -235,24 +259,24 @@ export default function App() {
             </div>
             {isWebsite && (
               <>
-                <Label>URL</Label>
-                <input type="text" className="border w-full p-2 mb-6" placeholder="ex. https://www.sacbee.com/..." value={newUrl} onChange={e => setNewUrl(e.target.value)}/>
+                <ModalLabel>URL</ModalLabel>
+                <ModalInput placeholder="ex. https://www.sacbee.com/..." value={newUrl} onChange={e => setNewUrl(e.target.value)}/>
                 <button onClick={fillInfoFromUrl} disabled={!newUrl || isWebsiteLoading} className="mb-6 p-1 text-sm border disabled:opacity-50 bg-gray-700 text-white">{isWebsiteLoading ? "Loading..." : "Get info from URL"}</button>
                 {websiteError && (
                   <p className="text-xs text-red-500 mb-6 break-all"><span className="font-bold">Error getting info from URL:</span> <span className="font-mono">{websiteError}</span>.<br/><br/>You can still save this URL by adding a name manually.</p>
                 )}
               </>
             )}
-            <Label>Name</Label>
-            <input type="text" className="border w-full p-2 mb-6" placeholder="ex. Tim interview" value={newName} onChange={e => setNewName(e.target.value)}/>
+            <ModalLabel>Name</ModalLabel>
+            <ModalInput placeholder="ex. Tim interview" value={newName} onChange={e => setNewName(e.target.value)}/>
             {isWebsite && (
               <>
-                <Label>Publication</Label>
-                <input type="text" className="border w-full p-2 mb-6" placeholder="ex. The Sacramento Bee" value={newPub} onChange={e => setNewPub(e.target.value)}/>
+                <ModalLabel>Publication</ModalLabel>
+                <ModalInput placeholder="ex. The Sacramento Bee" value={newPub} onChange={e => setNewPub(e.target.value)}/>
               </>
             )}
-            <Label>Date</Label>
-            <input type="date" className="border w-full p-2 mb-6" value={newDate} onChange={e => setNewDate(e.target.value)}/>
+            <ModalLabel>Date</ModalLabel>
+            <ModalInput type="date" value={newDate} onChange={e => setNewDate(e.target.value)}/>
             <button
               className="w-full bg-gray-800 p-2 text-white mt-auto disabled:opacity-50"
               disabled={!canCreate}
@@ -292,6 +316,7 @@ export default function App() {
           </div>
         </>
       )}
+      <SettingsModal isSettings={isSettings} setIsSettings={setIsSettings} settings={settings} setSettings={setSettings}/>
     </div>
   );
 }
