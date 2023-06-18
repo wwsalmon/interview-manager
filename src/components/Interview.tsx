@@ -91,7 +91,7 @@ export default function Interview({dir, selected, afterDelete}: {dir: string, se
         >
             <HalfContainer borderRight={true}>
                 <AreaLabel>Body</AreaLabel>
-                <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc."/>
+                <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc." className="font-mono"/>
             </HalfContainer>
             <HalfContainer>
                 <AreaLabel>Notes</AreaLabel>
