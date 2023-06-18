@@ -1,6 +1,6 @@
 import { open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
-import { BaseDirectory, FileEntry, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
@@ -69,6 +69,36 @@ export default function App() {
   const [newUrl, setNewUrl] = useState<string>("");
   const [newPub, setNewPub] = useState<string>("");
 
+  const [settings, setSettings] = useState<{recent: string[], revKey: string}>({recent: [], revKey: ""});
+
+  async function initSettings() {
+    const hasSettings = await exists("settings.json", {dir: BaseDirectory.AppConfig});
+
+    let newSettings = {recent: [], revKey: ""};
+    
+    if (hasSettings) {
+      console.log("loading new");
+      const settingsFile = await readTextFile("settings.json", {dir: BaseDirectory.AppConfig});
+      newSettings = JSON.parse(settingsFile);
+    } else {
+      console.log("creating new");
+      await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
+    }
+
+    setSettings(newSettings);
+  }
+
+  useEffect(() => {
+    initSettings();
+  }, []);
+
+  async function updateRecent(newDir: string) {
+    let newSettings = {...settings};
+    newSettings.recent = [newDir, ...settings.recent.filter(d => d !== newDir).slice(0, 5)];
+    setSettings(newSettings);
+    await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
+  }
+
   useEffect(() => {
     listen("menu-event", e => {
       try {
@@ -104,6 +134,7 @@ export default function App() {
 
     let filepath = await open({directory: true});
     setDir(filepath as string);
+    updateRecent(filepath as string);
     setSelected("");
     setIsOpenLoading(false);
   }
@@ -245,7 +276,21 @@ export default function App() {
           </div>
         </div>
       ) : (
-        <p className="p-4 text-center">No folder open, press Ctrl + O</p>
+        <>
+          <p className="p-4 text-center">No folder open, press Ctrl + O</p>
+          <div className="max-w-sm mx-auto">
+            <p className="uppercase font-bold text-sm my-6">Recently opened projects</p>
+            {settings.recent.length ? settings.recent.map(d => (
+              <button className="p-2 block w-full bg-gray-100 hover:bg-gray-300 my-2" key={d} onClick={() => {
+                setDir(d);
+                updateRecent(d);
+                setSelected("");
+              }}>{d}</button>
+            )) : (
+              <p>No recently opened projects.</p>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
