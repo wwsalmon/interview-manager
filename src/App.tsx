@@ -44,7 +44,7 @@ async function getMetaFromUrl(url: string) {
   const message = await invoke("get_meta_from_url", {url});
   const parser = new DOMParser();
   const html = parser.parseFromString(message as string, "text/html");
-  const name = html.querySelector("meta[property='og:title']")?.getAttribute("content") || "";
+  const name = html.querySelector("meta[property='og:title']")?.getAttribute("content") || html.querySelector("title")?.innerHTML || "";
   const pub = html.querySelector("meta[property='og:site_name']")?.getAttribute("content") || getRoot(url);
   const date = html.querySelector("meta[property='article:published_time']")?.getAttribute("content")?.substring(0, 10) || "";
   return {name, pub, date};
@@ -61,6 +61,7 @@ export default function App() {
 
   const [isWebsite, setIsWebsite] = useState<boolean>(false);
   const [isWebsiteLoading, setIsWebsiteLoading] = useState<boolean>(false);
+  const [websiteError, setWebsiteError] = useState<string>("");
   
   const [newName, setNewName] = useState<string>("");
   const [newDate, setNewDate] = useState<string>("");
@@ -137,6 +138,7 @@ export default function App() {
     if (!newUrl) return;
 
     setIsWebsiteLoading(true);
+    setWebsiteError("");
 
     try {
       const meta = await getMetaFromUrl(newUrl);
@@ -145,7 +147,7 @@ export default function App() {
       setNewPub(meta.pub);
       setNewDate(meta.date);
     } catch (e) {
-      console.log(e);
+      setWebsiteError(e as string);
     }
 
     setIsWebsiteLoading(false);
@@ -205,6 +207,9 @@ export default function App() {
                 <Label>URL</Label>
                 <input type="text" className="border w-full p-2 mb-6" placeholder="ex. https://www.sacbee.com/..." value={newUrl} onChange={e => setNewUrl(e.target.value)}/>
                 <button onClick={fillInfoFromUrl} disabled={!newUrl || isWebsiteLoading} className="mb-6 p-1 text-sm border disabled:opacity-50 bg-gray-700 text-white">{isWebsiteLoading ? "Loading..." : "Get info from URL"}</button>
+                {websiteError && (
+                  <p className="text-xs text-red-500 mb-6 break-all"><span className="font-bold">Error getting info from URL:</span> <span className="font-mono">{websiteError}</span>.<br/><br/>You can still save this URL by adding a name manually.</p>
+                )}
               </>
             )}
             <Label>Name</Label>

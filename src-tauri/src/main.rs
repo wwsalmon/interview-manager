@@ -3,6 +3,8 @@
 
 extern crate reqwest;
 
+use std::time::Duration;
+
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -10,13 +12,20 @@ use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
 async fn get_meta_from_url(url: &str) -> Result<String, String> {
     println!("{:?}", url);
 
-    let res = reqwest::get(url).await.unwrap().text().await.map_err(|err| err.to_string());
+    let client = reqwest::Client::builder().timeout(Duration::new(5, 0)).build().map_err(|e| e.to_string())?;
 
-    println!("{:?}", res);
+    let res = client.get(url).send().await;
 
     let ret = match res {
-        Ok(body) => Ok(body.into()),
-        Err(error) => Err(error.into())
+        Ok(body) => {
+            let res2 = body.text().await.map_err(|e| e.to_string()).into();
+            let ret2 = match res2 {
+                Ok(body) => Ok(body.into()),
+                Err(error) => Err(error.into())
+            };
+            return ret2;
+        },
+        Err(error) => Err(error.to_string())
     };
 
     ret
