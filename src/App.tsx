@@ -1,6 +1,6 @@
 import { open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
-import { BaseDirectory, FileEntry, readDir, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, FileEntry, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
@@ -10,6 +10,26 @@ import short from "short-uuid";
 import { invoke } from "@tauri-apps/api";
 import Website from "./components/Website";
 import Modal from "./components/Modal";
+import SidebarFile from "./components/SidebarFile";
+
+export interface InterviewFile {
+  name: string,
+  date: string,
+  body: string,
+  notes: string,
+  fileName: string,
+}
+
+export interface WebsiteFile {
+  name: string,
+  date: string,
+  body: string,
+  url: string,
+  pub: string,
+  fileName: string,
+}
+
+export type FileContent = InterviewFile | WebsiteFile;
 
 // https://gist.github.com/RavenHursT/fe8a95a59109096ac1f8
 const getRoot = (url = "") => (new URL(url)).hostname.split(".").slice(-2).join(".");
@@ -36,8 +56,8 @@ export default function App() {
   const [isNew, setIsNew] = useState<boolean>(false);
   const [isNewModal, setIsNewModal] = useState<boolean>(false);
   const [dir, setDir] = useState<string | null>(null);
-  const [contents, setContents] = useState<FileEntry[]>([]);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [contents, setContents] = useState<FileContent[]>([]);
+  const [selected, setSelected] = useState<string>("");
 
   const [isWebsite, setIsWebsite] = useState<boolean>(false);
   const [isWebsiteLoading, setIsWebsiteLoading] = useState<boolean>(false);
@@ -83,7 +103,7 @@ export default function App() {
 
     let filepath = await open({directory: true});
     setDir(filepath as string);
-    setSelected(null);
+    setSelected("");
     setIsOpenLoading(false);
   }
 
@@ -100,11 +120,16 @@ export default function App() {
   async function afterOpen() {
     if (dir) {
       let files = await readDir(dir, { dir: BaseDirectory.Home, recursive: false });
+
       files = files.filter(d => {
         const extension = d.name?.substring(d.name.length - 5);
         return extension && [".szhi", ".szhw"].includes(extension);
       });
-      setContents(files);
+
+      const newContents = await Promise.all(files.map(file => readTextFile(dir + "/" + file.name, {dir: BaseDirectory.Home})));
+      const newParsed = newContents.map(d => JSON.parse(d));
+      const newFiles = newParsed.map((d, i) => ({...d, fileName: files[i].name}));
+      setContents(newFiles);
     }
   }
 
@@ -160,11 +185,7 @@ export default function App() {
           <div className="w-64 bg-gray-100 flex-shrink-0 overflow-auto">
             <p className="p-2 break-all border-b text-sm opacity-50">Project: {getProjectName()}</p>
             {contents.map((d) => (
-              <button
-                className={classNames("p-4 block w-full text-left break-all truncate", selected === d.name ? "bg-white disabled border-t border-b" : "hover:bg-gray-200")}
-                key={d.name}
-                onClick={() => setSelected(d.name as string)}
-              >{d.name}</button>
+              <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected}/>
             ))}
             {!contents.length && (
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
@@ -205,12 +226,12 @@ export default function App() {
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsWebsite ? (
               <Website dir={dir} selected={selected} afterDelete={() => {
-                setSelected(null);
+                setSelected("");
                 afterOpen();
               }}/>
             ) : (
               <Interview dir={dir} selected={selected} afterDelete={() => {
-                setSelected(null);
+                setSelected("");
                 afterOpen();
               }}/>
             ) : (
