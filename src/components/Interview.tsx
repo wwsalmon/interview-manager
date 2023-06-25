@@ -2,7 +2,6 @@ import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-a
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
-import makeFile from "../utils/makeFile";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
 export default function Interview({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
@@ -56,7 +55,7 @@ export default function Interview({dir, selected, afterDelete}: {dir: string, se
 
         setIsLoading(true);
 
-        await writeTextFile(dir + "/" + selected, makeFile(name, date, body, notes), {dir: BaseDirectory.Home});
+        await writeTextFile(dir + "/" + selected, JSON.stringify({name, date, body, notes}), {dir: BaseDirectory.Home});
 
         await onLoad();
 

@@ -3,11 +3,8 @@ import Modal from "./Modal";
 import { invoke } from "@tauri-apps/api";
 import { ModalInput, ModalLabel } from "../App";
 import classNames from "classnames";
-import makeWebsiteFile from "../utils/makeWebsiteFile";
-import makeFile from "../utils/makeFile";
 import short from "short-uuid";
 import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs";
-import axios from "axios";
 import { open } from "@tauri-apps/api/dialog";
 
 export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen, setSelected, revKey }: { isNewModal: boolean, setIsNewModal: Dispatch<SetStateAction<boolean>>, dir: string, afterOpen: () => Promise<any>, setSelected: Dispatch<SetStateAction<string>>, revKey?: string }) {
@@ -46,7 +43,7 @@ export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen
     }
 
     async function onCreate() {
-        const fileContent = isWebsite ? makeWebsiteFile(newName, newUrl, newPub, newDate, "") : makeFile(newName, newDate, "", "");
+        const fileContent = JSON.stringify(isWebsite ? {name: newName, url: newUrl, pub: newPub, date: newDate, body: ""} : {name: newName, date: newDate, body: "", notes: ""});
 
         const fileName = encodeURIComponent(newName).substring(0, 20) + "-" + short.generate() + (isWebsite ? ".szhw" : ".szhi");
 

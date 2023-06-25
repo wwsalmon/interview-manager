@@ -2,7 +2,6 @@ import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-a
 import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
-import makeWebsiteFile from "../utils/makeWebsiteFile";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
 export default function Website({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
@@ -59,7 +58,7 @@ export default function Website({dir, selected, afterDelete}: {dir: string, sele
 
         setIsLoading(true);
 
-        await writeTextFile(dir + "/" + selected, makeWebsiteFile(name, url, pub, date, body), {dir: BaseDirectory.Home});
+        await writeTextFile(dir + "/" + selected, JSON.stringify({name, url, pub, date, body}), {dir: BaseDirectory.Home});
 
         await onLoad();
 

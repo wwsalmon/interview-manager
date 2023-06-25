@@ -9,6 +9,7 @@ import NewFileModal from "./components/NewFileModal";
 import SettingsModal from "./components/SettingsModal";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
+import Audio from "./components/Audio";
 
 export interface InterviewFile {
   name: string,
@@ -166,7 +167,7 @@ export default function App() {
 
       files = files.filter(d => {
         const extension = d.name?.substring(d.name.length - 5);
-        return extension && [".szhi", ".szhw"].includes(extension);
+        return extension && [".szhi", ".szhw", ".szha"].includes(extension);
       });
 
       const newContents = await Promise.all(files.map(file => readTextFile(dir + "/" + file.name, {dir: BaseDirectory.Home})));
@@ -182,7 +183,13 @@ export default function App() {
     return dirSplit[dirSplit.length - 1];
   }
 
+  function afterDelete() {
+    setSelected("");
+    afterOpen();
+  }
+
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
+  const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
 
   return (
     <div>
@@ -200,15 +207,11 @@ export default function App() {
           <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsWebsite ? (
-              <Website dir={dir} selected={selected} afterDelete={() => {
-                setSelected("");
-                afterOpen();
-              }}/>
+              <Website dir={dir} selected={selected} afterDelete={afterDelete}/>
+            ) : selectedIsAudio ? (
+              <Audio dir={dir} selected={selected} setSelected={setSelected} afterDelete={afterDelete} afterOpen={afterOpen} revKey={settings.revKey}/>
             ) : (
-              <Interview dir={dir} selected={selected} afterDelete={() => {
-                setSelected("");
-                afterOpen();
-              }}/>
+              <Interview dir={dir} selected={selected} afterDelete={afterDelete}/>
             ) : (
               <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
             )}
