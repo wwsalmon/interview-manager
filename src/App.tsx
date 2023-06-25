@@ -170,6 +170,8 @@ export default function App() {
         return extension && [".szhi", ".szhw", ".szha"].includes(extension);
       });
 
+      console.log(files);
+
       const newContents = await Promise.all(files.map(file => readTextFile(dir + "/" + file.name, {dir: BaseDirectory.Home})));
       const newParsed = newContents.map(d => JSON.parse(d));
       const newFiles = newParsed.map((d, i) => ({...d, fileName: files[i].name}));

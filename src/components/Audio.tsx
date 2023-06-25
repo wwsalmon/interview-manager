@@ -57,8 +57,6 @@ export default function Audio({dir, selected, afterDelete, afterOpen, revKey, se
 
         await writeTextFile(dir + "/" + selected, JSON.stringify(newContents), {dir: BaseDirectory.Home});
 
-        await removeFile(dir + "/" + selected, {dir: BaseDirectory.Home});
-
         setIsLoading(false);
     }
 
@@ -112,7 +110,10 @@ export default function Audio({dir, selected, afterDelete, afterOpen, revKey, se
                         </>
                     ),
                     "failed": (
-                        <p>Your transcription job failed.</p>
+                        <>
+                            <p>Your transcription job failed.</p>
+                            <p>Details: {contents.failure_detail}</p>
+                        </>
                     )
                 }[contents.status]}
                 <p>id: {contents.id}</p>
