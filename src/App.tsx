@@ -71,6 +71,7 @@ export default function App() {
   const [dir, setDir] = useState<string | null>(null);
   const [contents, setContents] = useState<FileContent[]>([]);
   const [selected, setSelected] = useState<string>("");
+  const [searchString, setSearchString] = useState<string>("");
 
   const [settings, setSettings] = useState<Settings>({recent: [], revKey: ""});
 
@@ -192,6 +193,7 @@ export default function App() {
 
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
   const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
+  const filteredContent = contents.filter(d => [d.name, d.body, "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())));
 
   return (
     <div>
@@ -199,9 +201,14 @@ export default function App() {
         <div className="flex h-full h-screen">
           <div className="w-64 bg-gray-100 flex-shrink-0 overflow-auto">
             <p className="p-2 break-all border-b text-sm opacity-50">Project: {getProjectName()}</p>
-            {contents.map((d) => (
+            <div className="p-2">
+              <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search files" className="text-sm w-full p-1 border"/>
+            </div>
+            {filteredContent.length ? filteredContent.map((d) => (
               <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected}/>
-            ))}
+            )) : (
+              <p className="text-sm p-2">No files matching the search query</p>
+            )}
             {!contents.length && (
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
             )}
