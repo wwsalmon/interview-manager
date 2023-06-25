@@ -2,10 +2,15 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 extern crate reqwest;
+extern crate json;
 
 use std::time::Duration;
 
+use reqwest::header::AUTHORIZATION;
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
+use reqwest::{multipart, Body};
+use tokio::fs::File;
+use tokio_util::codec::{BytesCodec, FramedRead};
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -28,6 +33,51 @@ async fn get_meta_from_url(url: &str) -> Result<String, String> {
         Err(error) => Err(error.to_string())
     };
 
+    ret
+}
+
+#[tauri::command]
+async fn upload_rev(path: &str, key: &str) -> Result<String, String> {
+    println!("{} {}", path, key);
+
+    let file = File::open(path).await.map_err(|e| e.to_string())?;
+    let stream = FramedRead::new(file, BytesCodec::new());
+    let file_body = Body::wrap_stream(stream);
+
+    let file_part = multipart::Part::stream(file_body)
+        .file_name("virginia tsai.m4a") // temporary
+        .mime_str("audio/m4a") // temporary
+        .map_err(|e| e.to_string())?;
+
+    let form = multipart::Form::new()
+        .part("media", file_part);
+
+    println!("{:?}", form);
+
+    let client = reqwest::Client::new();
+
+    let res = client
+        .post("https://api.rev.ai/speechtotext/v1/jobs")
+        .multipart(form)
+        .header(AUTHORIZATION, format!("Bearer {}", key))
+        .send()
+        .await
+        .map_err(|e| e.to_string());
+
+    println!("{:?}", res);
+
+    let ret = match res {
+        Ok(body) => {
+            let res2 = body.text().await.map_err(|e| e.to_string()).into();
+            let ret2 = match res2 {
+                Ok(body) => Ok(body.into()),
+                Err(error) => Err(error.into())
+            };
+            return ret2;
+        },
+        Err(error) => Err(error.to_string())
+    };
+    
     ret
 }
 
@@ -64,7 +114,7 @@ fn main() {
         .add_submenu(windowmenu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_meta_from_url])
+        .invoke_handler(tauri::generate_handler![get_meta_from_url, upload_rev])
         .menu(menu)
         .on_menu_event(|event| match event.menu_item_id() {
             "open" => {

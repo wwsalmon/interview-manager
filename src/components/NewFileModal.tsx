@@ -8,10 +8,10 @@ import makeFile from "../utils/makeFile";
 import short from "short-uuid";
 import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs";
 import axios from "axios";
+import { open } from "@tauri-apps/api/dialog";
 
 export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen, setSelected, revKey }: { isNewModal: boolean, setIsNewModal: Dispatch<SetStateAction<boolean>>, dir: string, afterOpen: () => Promise<any>, setSelected: Dispatch<SetStateAction<string>>, revKey?: string }) {
     const [tab, setTab] = useState<string>("interview");
-    const [isWebsite, setIsWebsite] = useState<boolean>(false);
     const [isWebsiteLoading, setIsWebsiteLoading] = useState<boolean>(false);
     const [websiteError, setWebsiteError] = useState<string>("");
 
@@ -21,8 +21,10 @@ export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen
     const [newUrl, setNewUrl] = useState<string>("");
     const [newPub, setNewPub] = useState<string>("");
 
-    const [audioFile, setAudioFile] = useState<File | null>();
+    const [audioFile, setAudioFile] = useState<string>();
     const [audioLoading, setAudioLoading] = useState<boolean>(false);
+
+    const isWebsite = tab === "website";
 
     async function fillInfoFromUrl() {
         if (!newUrl) return;
@@ -65,33 +67,22 @@ export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen
     async function submitAudio() {
         setAudioLoading(true);
 
+        if (!audioFile || !revKey) return;
+
         try {
-            if (!audioFile || !revKey) return;
-    
-            const form = new FormData();
-            const reader = new FileReader();
-
-            const blobToData: Promise<string> = new Promise((resolve) => {
-                reader.onload = () => resolve(reader.result as string);
-                reader.readAsBinaryString(audioFile);
-            })
-
-            const data = await blobToData;
-            form.append("media", data);
-            form.append("metadata", newName);
-
-            const res = await axios.post("https://api.rev.ai/speechtotext/v1/jobs", form, {
-                headers: {
-                    Authorization: `Bearer ${revKey}`,
-                }
-            });
-
+            const res = await invoke("upload_rev", {path: audioFile, key: revKey });
             console.log(res);
         } catch (e) {
             console.log(e);
         }
 
         setAudioLoading(false);
+    }
+
+    async function openAudioFile() {
+        let filepath = await open();
+
+        if (filepath) setAudioFile(filepath.toString());
     }
 
     return (
@@ -108,7 +99,10 @@ export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen
             {(tab === "audio") && revKey ? (
                 <>
                     <p className="mb-6">Upload an audio file to get an automatic transcript generated.</p>
-                    <input type="file" className="mb-6" onChange={e => setAudioFile(e.target.files && e.target.files[0])}/>
+                    <div className="flex items-center mb-6">
+                        <button className="mr-4 bg-gray-100 px-4 py-1 flex-shrink-0" onClick={openAudioFile}>Choose file</button>
+                        <span className="truncate">{audioFile}</span>
+                    </div>
                 </>
             ) : (
                 <p>No rev.ai key configured. Press Ctrl/Cmd + , to set up a rev.ai key and use audio transcription.</p>
