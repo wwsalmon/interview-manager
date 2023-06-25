@@ -4,7 +4,7 @@ import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
-export default function Website({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
+export default function Website({dir, selected, afterDelete, afterSave}: {dir: string, selected: string, afterDelete: () => any, afterSave: () => any}) {
     const [name, setName] = useState<string>("");
     const [url, setUrl] = useState<string>("");
     const [pub, setPub] = useState<string>("");
@@ -64,6 +64,8 @@ export default function Website({dir, selected, afterDelete}: {dir: string, sele
 
         setIsLoading(false);
         setIsSaving(false);
+
+        afterSave();
     }
 
     async function onDelete() {

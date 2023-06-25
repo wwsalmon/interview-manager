@@ -1,6 +1,5 @@
 import classNames from "classnames";
 import { ComponentPropsWithRef, ReactNode, useState } from "react";
-import ReactModal from "react-modal";
 import Modal from "./Modal";
 
 export function Container({children, topbar, hasUnsaved, isLoading, onSave, onDelete}: {children: ReactNode, topbar: ReactNode, hasUnsaved?: boolean, isLoading: boolean, onSave?: () => any, onDelete: () => any}) {

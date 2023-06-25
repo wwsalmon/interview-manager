@@ -209,11 +209,11 @@ export default function App() {
           <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsWebsite ? (
-              <Website dir={dir} selected={selected} afterDelete={afterDelete}/>
+              <Website dir={dir} selected={selected} afterDelete={afterDelete} afterSave={afterOpen}/>
             ) : selectedIsAudio ? (
               <Audio dir={dir} selected={selected} setSelected={setSelected} afterDelete={afterDelete} afterOpen={afterOpen} revKey={settings.revKey}/>
             ) : (
-              <Interview dir={dir} selected={selected} afterDelete={afterDelete}/>
+              <Interview dir={dir} selected={selected} afterDelete={afterDelete} afterSave={afterOpen}/>
             ) : (
               <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
             )}

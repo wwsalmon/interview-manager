@@ -4,7 +4,7 @@ import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
-export default function Interview({dir, selected, afterDelete}: {dir: string, selected: string, afterDelete: () => any}) {
+export default function Interview({dir, selected, afterDelete, afterSave}: {dir: string, selected: string, afterDelete: () => any, afterSave: () => any}) {
     const [name, setName] = useState<string>("");
     const [date, setDate] = useState<string>("");
     const [body, setBody] = useState<string>("");
@@ -61,6 +61,8 @@ export default function Interview({dir, selected, afterDelete}: {dir: string, se
 
         setIsLoading(false);
         setIsSaving(false);
+
+        afterSave();
     }
 
     async function onDelete() {
