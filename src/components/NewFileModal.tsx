@@ -68,7 +68,19 @@ export default function NewFileModal({ isNewModal, setIsNewModal, dir, afterOpen
 
         try {
             const res = await invoke("upload_rev", {path: audioFile, key: revKey });
-            console.log(res);
+            const parsed = JSON.parse(res as string);
+
+            const fileName = encodeURIComponent(newName).substring(0, 20) + "-" + short.generate() + ".szha";
+
+            await writeTextFile(dir + "/" + fileName, JSON.stringify({name: newName, date: newDate, id: parsed.id, path: audioFile, status: parsed.status, failure_detail: parsed.failure_detail || ""}), { dir: BaseDirectory.Home });
+
+            await afterOpen();
+
+            setSelected(fileName);
+            setNewName("");
+            setNewDate("");
+            setAudioFile("");
+            setIsNewModal(false);
         } catch (e) {
             console.log(e);
         }

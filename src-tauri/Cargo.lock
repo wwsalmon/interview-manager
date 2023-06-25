@@ -1342,6 +1342,7 @@ name = "interview-manager"
 version = "0.0.0"
 dependencies = [
  "json",
+ "mime_guess",
  "reqwest",
  "serde",
  "serde_json",

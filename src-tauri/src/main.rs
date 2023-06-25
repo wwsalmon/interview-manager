@@ -5,12 +5,14 @@ extern crate reqwest;
 extern crate json;
 
 use std::time::Duration;
+use std::path::Path;
 
 use reqwest::header::{AUTHORIZATION, ACCEPT};
 use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
 use reqwest::{multipart, Body};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
+use mime_guess::from_path;
 
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -40,13 +42,25 @@ async fn get_meta_from_url(url: &str) -> Result<String, String> {
 async fn upload_rev(path: &str, key: &str) -> Result<String, String> {
     println!("{} {}", path, key);
 
+    let path_obj = Path::new(path);
+    let filename_option = path_obj.file_name().unwrap().to_str();
+    let mime_type_option = from_path(path).first();
+
+    if (!mime_type_option.is_some() || !filename_option.is_some()) {
+        return Err("file path error".to_string());
+    };
+
+    let filename = filename_option.unwrap().to_string();
+    let mime_type = mime_type_option.unwrap();
+    let mime_str = mime_type.essence_str();
+
     let file = File::open(path).await.map_err(|e| e.to_string())?;
     let stream = FramedRead::new(file, BytesCodec::new());
     let file_body = Body::wrap_stream(stream);
 
     let file_part = multipart::Part::stream(file_body)
-        .file_name("virginia tsai.m4a") // temporary
-        .mime_str("audio/m4a") // temporary
+        .file_name(filename) // temporary
+        .mime_str(mime_str) // temporary
         .map_err(|e| e.to_string())?;
 
     let form = multipart::Form::new()
