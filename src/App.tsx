@@ -204,14 +204,14 @@ export default function App() {
             <div className="p-2">
               <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search files" className="text-sm w-full p-1 border"/>
             </div>
-            {filteredContent.length ? filteredContent.map((d) => (
-              <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected}/>
-            )) : (
-              <p className="text-sm p-2">No files matching the search query</p>
-            )}
-            {!contents.length && (
+            {contents.length ? (
+              <p className="text-xs px-4 py-1 opacity-50">{filteredContent.length} file{filteredContent.length === 1 ? "" : "s"} {searchString && "matching search query"}</p>
+            ) : (
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
             )}
+            {filteredContent.map((d) => (
+              <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected}/>
+            ))}
           </div>
           <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
           <div style={{width: "calc(100% - 256px)"}}>
