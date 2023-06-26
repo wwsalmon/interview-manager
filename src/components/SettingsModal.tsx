@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ModalInput, ModalLabel, Settings } from "../App";
 import Modal from "./Modal";
 import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs";
@@ -36,6 +36,10 @@ export default function SettingsModal({isSettings, setIsSettings, settings, setS
 
         onSave(newSettings);
     }
+
+    useEffect(() => {
+        setRevKey(settings.revKey);
+    }, [settings.revKey]);
 
     return (
         <Modal isOpen={isSettings} setIsOpen={setIsSettings}>
