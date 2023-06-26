@@ -174,7 +174,7 @@ export default function App() {
 
       const newContents = await Promise.all(files.map(file => readTextFile(dir + "/" + file.name, {dir: BaseDirectory.Home})));
       const newParsed = newContents.map(d => JSON.parse(d));
-      const newFiles = newParsed.map((d, i) => ({...d, fileName: files[i].name}));
+      const newFiles = newParsed.map((d, i) => ({...d, fileName: files[i].name})).sort((a,b) => (a.date && b.date) ? (+new Date(b.date) - +new Date(a.date)) : 0);
       setContents(newFiles);
       setIsUnsaved(false);
     }
