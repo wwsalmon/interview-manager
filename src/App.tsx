@@ -72,6 +72,7 @@ export default function App() {
   const [contents, setContents] = useState<FileContent[]>([]);
   const [selected, setSelected] = useState<string>("");
   const [searchString, setSearchString] = useState<string>("");
+  const [isUnsaved, setIsUnsaved] = useState<boolean>(false);
 
   const [settings, setSettings] = useState<Settings>({recent: [], revKey: ""});
 
@@ -171,12 +172,11 @@ export default function App() {
         return extension && [".szhi", ".szhw", ".szha"].includes(extension);
       });
 
-      console.log(files);
-
       const newContents = await Promise.all(files.map(file => readTextFile(dir + "/" + file.name, {dir: BaseDirectory.Home})));
       const newParsed = newContents.map(d => JSON.parse(d));
       const newFiles = newParsed.map((d, i) => ({...d, fileName: files[i].name}));
       setContents(newFiles);
+      setIsUnsaved(false);
     }
   }
 
@@ -210,17 +210,17 @@ export default function App() {
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
             )}
             {filteredContent.map((d) => (
-              <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected}/>
+              <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
             ))}
           </div>
           <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsWebsite ? (
-              <Website dir={dir} selected={selected} afterDelete={afterDelete} afterSave={afterOpen}/>
+              <Website dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
             ) : selectedIsAudio ? (
-              <Audio dir={dir} selected={selected} setSelected={setSelected} afterDelete={afterDelete} afterOpen={afterOpen} revKey={settings.revKey}/>
+              <Audio dir={dir} selected={selected} setSelected={setSelected} afterDelete={afterDelete} updateSidebar={afterOpen} revKey={settings.revKey} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
             ) : (
-              <Interview dir={dir} selected={selected} afterDelete={afterDelete} afterSave={afterOpen}/>
+              <Interview dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
             ) : (
               <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
             )}

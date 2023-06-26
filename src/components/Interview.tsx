@@ -1,10 +1,11 @@
 import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
+import { FileAreaProps } from "./Audio";
 
-export default function Interview({dir, selected, afterDelete, afterSave}: {dir: string, selected: string, afterDelete: () => any, afterSave: () => any}) {
+export default function Interview({dir, selected, afterDelete, updateSidebar, isUnsaved, setIsUnsaved}: FileAreaProps) {
     const [name, setName] = useState<string>("");
     const [date, setDate] = useState<string>("");
     const [body, setBody] = useState<string>("");
@@ -14,6 +15,12 @@ export default function Interview({dir, selected, afterDelete, afterSave}: {dir:
     const [isSaving, setIsSaving] = useState<boolean>(false);
 
     const hasUnsaved = (contents.body !== body) || (contents.date !== date) || (contents.notes !== notes) || (contents.name !== name);
+
+    useEffect(() => {
+        if (hasUnsaved !== isUnsaved) {
+            setIsUnsaved(hasUnsaved);
+        }
+    }, [hasUnsaved]);
 
     useEffect(() => {
         onLoad();
@@ -62,7 +69,7 @@ export default function Interview({dir, selected, afterDelete, afterSave}: {dir:
         setIsLoading(false);
         setIsSaving(false);
 
-        afterSave();
+        updateSidebar();
     }
 
     async function onDelete() {

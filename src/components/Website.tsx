@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
 import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
+import { FileAreaProps } from "./Audio";
 
-export default function Website({dir, selected, afterDelete, afterSave}: {dir: string, selected: string, afterDelete: () => any, afterSave: () => any}) {
+export default function Website({dir, selected, afterDelete, updateSidebar, isUnsaved, setIsUnsaved}: FileAreaProps) {
     const [name, setName] = useState<string>("");
     const [url, setUrl] = useState<string>("");
     const [pub, setPub] = useState<string>("");
@@ -16,6 +17,12 @@ export default function Website({dir, selected, afterDelete, afterSave}: {dir: s
     const [showWebsite, setShowWebsite] = useState<boolean>(false);
 
     const hasUnsaved = (contents.body !== body) || (contents.date !== date) || (contents.pub !== pub) || (contents.name !== name);
+
+    useEffect(() => {
+        if (hasUnsaved !== isUnsaved) {
+            setIsUnsaved(hasUnsaved);
+        }
+    }, [hasUnsaved]);
 
     useEffect(() => {
         onLoad();
@@ -66,7 +73,7 @@ export default function Website({dir, selected, afterDelete, afterSave}: {dir: s
         setIsLoading(false);
         setIsSaving(false);
 
-        afterSave();
+        updateSidebar();
     }
 
     async function onDelete() {

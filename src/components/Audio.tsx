@@ -9,7 +9,21 @@ export interface AudioFile {
     name: string, date: string, id: string, status: string, path: string, failure_detail?: string, duration_seconds?: number, created_on?: string
 }
 
-export default function Audio({dir, selected, afterDelete, afterOpen, revKey, setSelected}: {dir: string, selected: string, afterDelete: () => any, afterOpen: () => any, revKey: string, setSelected: Dispatch<SetStateAction<string>>}) {
+export interface FileAreaProps {
+    dir: string,
+    selected: string,
+    afterDelete: () => any,
+    updateSidebar: () => any,
+    isUnsaved: boolean,
+    setIsUnsaved: Dispatch<SetStateAction<boolean>>,
+}
+
+export interface AudioFileAreaProps extends FileAreaProps {
+    revKey: string,
+    setSelected: Dispatch<SetStateAction<string>>,
+}
+
+export default function Audio({dir, selected, afterDelete, updateSidebar, revKey, setSelected}: AudioFileAreaProps) {
     const [contents, setContents] = useState<AudioFile>({name: "", date: "", id: "", status: "", path: ""});
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -83,7 +97,7 @@ export default function Audio({dir, selected, afterDelete, afterOpen, revKey, se
 
         setIsLoading(false);
 
-        afterOpen();
+        updateSidebar();
     }
 
     return (

@@ -2,6 +2,7 @@ import { Dispatch, SetStateAction } from "react";
 import { FileContent } from "../App";
 import classNames from "classnames";
 import { format } from "date-fns";
+import { confirm } from "@tauri-apps/api/dialog";
 
 function dateOnly(date: string): Date {
     const initDate = new Date(date);
@@ -9,16 +10,26 @@ function dateOnly(date: string): Date {
     return newDate;
 }
 
-export default function SidebarFile({ content, selected, setSelected }: { content: FileContent, selected: string, setSelected: Dispatch<SetStateAction<string>> }) {
+export default function SidebarFile({ content, selected, setSelected, isUnsaved, setIsUnsaved }: { content: FileContent, selected: string, setSelected: Dispatch<SetStateAction<string>>, isUnsaved: boolean, setIsUnsaved: Dispatch<SetStateAction<boolean>> }) {
     const isWebsite = "url" in content;
     const isAudio = "id" in content;
     const isSelected = selected === content.fileName;
     const previewText = isAudio ? null : (isWebsite ? content.body : content.notes);
 
+    async function onClick() {
+        if (isUnsaved) {
+            const confirmed = await confirm("You will lose your changes on this document if you proceed.", {title: "Unsaved changes"})
+
+            if (!confirmed) return;
+        }
+
+        setSelected(content.fileName);
+    }
+
     return (
         <button
             className={classNames("p-4 block w-full text-left break-all", isSelected ? "bg-white disabled border-t border-b" : "hover:bg-gray-200")}
-            onClick={() => setSelected(content.fileName)}
+            onClick={onClick}
         >
             <p className="text-[9px] uppercase font-bold opacity-50">{isAudio ? "Transcription in progress" : isWebsite ? "Website" : "Interview"} {isWebsite && ` | ${content.pub}`}</p>
             <p className="text-sm line-clamp-2 my-1 leading-tight font-medium">{content.name}</p>
