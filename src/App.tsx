@@ -73,6 +73,7 @@ export default function App() {
   const [selected, setSelected] = useState<string>("");
   const [searchString, setSearchString] = useState<string>("");
   const [isUnsaved, setIsUnsaved] = useState<boolean>(false);
+  const [tab, setTab] = useState<string>("All");
 
   const [settings, setSettings] = useState<Settings>({recent: [], revKey: ""});
 
@@ -200,12 +201,23 @@ export default function App() {
       {dir ? (
         <div className="flex h-full h-screen">
           <div className="w-64 bg-gray-100 flex-shrink-0 overflow-auto">
-            <p className="p-2 break-all border-b text-sm opacity-50">Project: {getProjectName()}</p>
-            <div className="p-2">
+            <div className="px-4 py-10 bg-[#111] text-white text-center">
+              <img src="/3dlogo.png" alt="logo" className="w-3/4 mb-6 mx-auto"/>
+              <p className="font-mono font-black text-2xl leading-none opacity-90">
+                interview manager
+              </p>
+              <p className="mt-2 opacity-50 text-xs">
+                By Samson Zhang | v0.1.1
+              </p>
+            </div>
+            <div className="p-2 bg-black text-white">
+              <p className="break-all text-sm font-semibold opacity-90">Project: {getProjectName()}</p>
+            </div>
+            <div className="px-2 py-2">
               <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search files" className="text-sm w-full p-1 border"/>
             </div>
             {contents.length ? (
-              <p className="text-xs px-4 py-1 opacity-50">{filteredContent.length} file{filteredContent.length === 1 ? "" : "s"} {searchString && "matching search query"}</p>
+              <p className="text-xs px-2 py-1 opacity-50">{filteredContent.length} file{filteredContent.length === 1 ? "" : "s"} {searchString && "matching search query"}</p>
             ) : (
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
             )}
