@@ -10,6 +10,7 @@ import SettingsModal from "./components/SettingsModal";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
 import Audio from "./components/Audio";
+import {FiGlobe, FiMessageCircle, FiUploadCloud} from "react-icons/fi";
 
 export interface InterviewFile {
   name: string,
@@ -204,7 +205,14 @@ export default function App() {
 
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
   const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
-  const filteredContent = contents.filter(d => [d.name, d.body, "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())));
+  const filteredContent = contents
+    .filter(d => [d.name, d.body, "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())))
+    .filter(d => {
+      if (tab === "All") return true;
+      const ext = d.fileName.substring(d.fileName.length - 1);
+      const type = {w: "Website", i: "Interview", a: "Progress"}[ext];
+      return type === tab;
+    });
 
   const version = "0.1.1";
 
@@ -226,11 +234,25 @@ export default function App() {
               <p className="break-all text-sm font-semibold opacity-90">Project: {getProjectName()}</p>
               <button className="ml-auto text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={onClose}>Close</button>
             </div>
-            <div className="px-2 py-2">
+            <div className="px-2 py-2 bg-black">
               <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search files" className="text-sm w-full p-1 border"/>
             </div>
             {contents.length ? (
-              <p className="text-xs px-2 py-1 opacity-50">{filteredContent.length} file{filteredContent.length === 1 ? "" : "s"} {searchString && "matching search query"}</p>
+              <>
+                <div className="flex items-center pt-2 bg-black">
+                  {["All", "Interview", "Website", "Progress"].map(d => (
+                    <button onClick={() => setTab(d)} key={d} className={classNames("w-1/4 text-xs flex h-8 items-center justify-center block rounded-t", (tab === d) ? "bg-gray-100" : "text-white opacity-50 hover:bg-[#333]")}>
+                      {{
+                        All: "All",
+                        Interview: <FiMessageCircle/>,
+                        Website: <FiGlobe/>,
+                        Progress: <FiUploadCloud/>
+                      }[d]}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs px-2 pt-3 pb-1 opacity-50">{filteredContent.length} file{filteredContent.length === 1 ? "" : "s"} {searchString && "matching search query"}</p>
+              </>
             ) : (
               <p className="text-sm p-2">No files yet, press Ctrl + N to create a new one, or Ctrl + O to open a different folder</p>
             )}
