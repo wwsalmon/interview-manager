@@ -1,5 +1,5 @@
 import { invoke } from "@tauri-apps/api";
-import { open } from "@tauri-apps/api/dialog";
+import { open, confirm } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
@@ -181,6 +181,16 @@ export default function App() {
     }
   }
 
+  async function onClose() {
+    if (isUnsaved) {
+        const confirmed = await confirm("You will lose your changes on this document if you proceed.", {title: "Unsaved changes"})
+
+        if (!confirmed) return;
+    }
+
+    setDir("");
+  }
+
   function getProjectName() {
     if (!dir) return "";
     const dirSplit = dir.split("/");
@@ -196,6 +206,8 @@ export default function App() {
   const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
   const filteredContent = contents.filter(d => [d.name, d.body, "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())));
 
+  const version = "0.1.1";
+
   return (
     <div>
       {dir ? (
@@ -207,11 +219,12 @@ export default function App() {
                 interview manager
               </p>
               <p className="mt-2 opacity-50 text-xs">
-                By Samson Zhang | v0.1.1
+                By Samson Zhang | v{version}
               </p>
             </div>
-            <div className="p-2 bg-black text-white">
+            <div className="p-2 bg-black text-white flex items-center">
               <p className="break-all text-sm font-semibold opacity-90">Project: {getProjectName()}</p>
+              <button className="ml-auto text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={onClose}>Close</button>
             </div>
             <div className="px-2 py-2">
               <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search files" className="text-sm w-full p-1 border"/>
@@ -240,7 +253,14 @@ export default function App() {
         </div>
       ) : (
         <>
-          <p className="p-4 text-center">No folder open, press Ctrl + O</p>
+          <div className="w-full bg-[#111] py-8 text-white text-center">
+            <img src="/3dlogo.png" alt="szhim logo" className="max-w-sm mx-auto"/>
+            <p className="font-mono font-black text-3xl mt-8 opacity-90">interview manager</p>
+            <p className="mt-2 opacity-50 text-sm">
+              By Samson Zhang | v{version}
+            </p>
+          </div>  
+          <p className="p-4 text-center">No folder open, press Ctrl/Cmd + O</p>
           <div className="max-w-sm mx-auto">
             <p className="uppercase font-bold text-sm my-6">Recently opened projects</p>
             {settings.recent.length ? settings.recent.map(d => (
