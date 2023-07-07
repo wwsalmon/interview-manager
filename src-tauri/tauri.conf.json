@@ -27,7 +27,7 @@
     },
     "bundle": {
       "active": true,
-      "targets": "app",
+      "targets": ["app", "nsis"],
       "identifier": "com.samsonzhang.interviewmanager",
       "icon": [
         "icons/icon.png",
