@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { ModalInput, ModalLabel, Settings } from "../App";
 import Modal from "./Modal";
-import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, writeTextFile, exists, createDir } from "@tauri-apps/api/fs";
 
 export default function SettingsModal({isSettings, setIsSettings, settings, setSettings}: {isSettings: boolean, setIsSettings: Dispatch<SetStateAction<boolean>>, settings: Settings, setSettings: Dispatch<SetStateAction<Settings>>}) {
     const [revKey, setRevKey] = useState<string>(settings.revKey);
@@ -13,6 +13,12 @@ export default function SettingsModal({isSettings, setIsSettings, settings, setS
         if (isSettingLoading) return;
     
         setIsSettingLoading(true);
+
+        const hasSettingsDir = await exists("", {dir: BaseDirectory.AppConfig});
+
+        if (!hasSettingsDir) {
+            await createDir("", {dir: BaseDirectory.AppConfig, recursive: true});
+        }
     
         await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
     

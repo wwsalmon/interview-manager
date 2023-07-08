@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { open, confirm } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
-import { BaseDirectory, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, createDir, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ComponentPropsWithRef, ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
@@ -9,7 +9,7 @@ import NewFileModal from "./components/NewFileModal";
 import SettingsModal from "./components/SettingsModal";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
-import Audio from "./components/Audio";
+import Audio, { AudioFile } from "./components/Audio";
 import {FiGlobe, FiMessageCircle, FiUploadCloud} from "react-icons/fi";
 
 export interface InterviewFile {
@@ -29,7 +29,7 @@ export interface WebsiteFile {
   fileName: string,
 }
 
-export type FileContent = InterviewFile | WebsiteFile;
+export type FileContent = InterviewFile | WebsiteFile | (AudioFile & {fileName: string});
 
 export interface Settings {
   recent: string[],
@@ -91,6 +91,13 @@ export default function App() {
       newSettings = JSON.parse(settingsFile);
     } else {
       console.log("creating new");
+
+      const hasSettingsDir = await exists("", {dir: BaseDirectory.AppConfig});
+
+      if (!hasSettingsDir) {
+          await createDir("", {dir: BaseDirectory.AppConfig, recursive: true});
+      }
+
       await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
     }
 
@@ -206,7 +213,7 @@ export default function App() {
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
   const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
   const filteredContent = contents
-    .filter(d => [d.name, d.body, "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())))
+    .filter(d => [d.name, "body" in d ? d.body : "", "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())))
     .filter(d => {
       if (tab === "All") return true;
       const ext = d.fileName.substring(d.fileName.length - 1);
@@ -214,7 +221,7 @@ export default function App() {
       return type === tab;
     });
 
-  const version = "0.1.1";
+  const version = "0.1.2";
 
   return (
     <div>

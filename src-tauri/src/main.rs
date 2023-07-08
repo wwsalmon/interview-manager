@@ -46,7 +46,7 @@ async fn upload_rev(path: &str, key: &str) -> Result<String, String> {
     let filename_option = path_obj.file_name().unwrap().to_str();
     let mime_type_option = from_path(path).first();
 
-    if (!mime_type_option.is_some() || !filename_option.is_some()) {
+    if !mime_type_option.is_some() || !filename_option.is_some() {
         return Err("file path error".to_string());
     };
 
@@ -151,7 +151,7 @@ async fn transcript_rev(id: &str, key: &str) -> Result<String, String> {
 }
 
 fn main() {
-    let firstmenu = Submenu::new("First", Menu::new()
+    let firstmenu = Submenu::new("App", Menu::new()
         .add_native_item(MenuItem::Quit)
         .add_item(CustomMenuItem::new("settings", "Settings").accelerator("cmdOrControl+,"))
     );
