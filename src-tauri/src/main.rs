@@ -151,7 +151,7 @@ async fn transcript_rev(id: &str, key: &str) -> Result<String, String> {
 }
 
 fn main() {
-    let firstmenu = Submenu::new("First", Menu::new()
+    let firstmenu = Submenu::new("App", Menu::new()
         .add_native_item(MenuItem::Quit)
         .add_item(CustomMenuItem::new("settings", "Settings").accelerator("cmdOrControl+,"))
     );
