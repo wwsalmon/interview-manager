@@ -7,7 +7,7 @@ export default function formatRev(transcript: string) {
         const part = parts[i];
         if (!part[1] || !part[2]) break;
         const isSameSpeaker = (+i !== 0) && parts[+i - 1][0] === part[0];
-        if (isSameSpeaker) output += ` ${part[2]}`;
+        if (isSameSpeaker) output += `${part[2]}\n\n`;
         else output += `${part[0]}, ${part[1]}:\n${part[2]}\n\n`;
     }
 
