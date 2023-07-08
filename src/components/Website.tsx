@@ -36,6 +36,7 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
     
         setContents({name: parsed.name, date: parsed.date, pub: parsed.pub, body: parsed.body, url: parsed.url});
         
+        setShowWebsite(false);
         setName(parsed.name);
         setDate(parsed.date);
         setPub(parsed.pub);
