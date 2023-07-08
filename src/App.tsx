@@ -9,7 +9,7 @@ import NewFileModal from "./components/NewFileModal";
 import SettingsModal from "./components/SettingsModal";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
-import Audio from "./components/Audio";
+import Audio, { AudioFile } from "./components/Audio";
 import {FiGlobe, FiMessageCircle, FiUploadCloud} from "react-icons/fi";
 
 export interface InterviewFile {
@@ -29,7 +29,7 @@ export interface WebsiteFile {
   fileName: string,
 }
 
-export type FileContent = InterviewFile | WebsiteFile;
+export type FileContent = InterviewFile | WebsiteFile | (AudioFile & {fileName: string});
 
 export interface Settings {
   recent: string[],
@@ -213,7 +213,7 @@ export default function App() {
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
   const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
   const filteredContent = contents
-    .filter(d => [d.name, d.body, "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())))
+    .filter(d => [d.name, "body" in d ? d.body : "", "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())))
     .filter(d => {
       if (tab === "All") return true;
       const ext = d.fileName.substring(d.fileName.length - 1);
