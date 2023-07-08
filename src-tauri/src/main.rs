@@ -46,7 +46,7 @@ async fn upload_rev(path: &str, key: &str) -> Result<String, String> {
     let filename_option = path_obj.file_name().unwrap().to_str();
     let mime_type_option = from_path(path).first();
 
-    if (!mime_type_option.is_some() || !filename_option.is_some()) {
+    if !mime_type_option.is_some() || !filename_option.is_some() {
         return Err("file path error".to_string());
     };
 
