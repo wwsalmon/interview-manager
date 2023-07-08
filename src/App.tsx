@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api";
 import { open, confirm } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
-import { BaseDirectory, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
+import { BaseDirectory, createDir, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ComponentPropsWithRef, ReactNode, useEffect, useState } from "react";
 import Interview from "./components/Interview";
@@ -91,6 +91,13 @@ export default function App() {
       newSettings = JSON.parse(settingsFile);
     } else {
       console.log("creating new");
+
+      const hasSettingsDir = await exists("", {dir: BaseDirectory.AppConfig});
+
+      if (!hasSettingsDir) {
+          await createDir("", {dir: BaseDirectory.AppConfig, recursive: true});
+      }
+
       await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
     }
 
