@@ -108,7 +108,13 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
         >
             <div className="w-1/2 flex-shrink-0 flex-grow-0 border-r h-full overflow-hidden">
                 {showWebsite ? (
-                    <iframe src={url} className="w-[133%] h-[133%] transform scale-75 origin-top-left"></iframe>
+                    <>
+                        <div className="h-12 px-4 flex items-center border-b">
+                            <button className="text-xs px-1 py-[2px] rounded border opacity-50 hover:opacity-100" onClick={() => setShowWebsite(false)}>Close preview</button>
+                            <p className="ml-4 text-xs opacity-50">Some websites may not render as a preview</p>
+                        </div>
+                        <iframe src={url} className="w-[133%] transform scale-75 origin-top-left" style={{height: "calc(133% - 64px)"}}></iframe>
+                    </>
                 ) : (
                     <div className="p-8">
                         <AreaLabel>{contents.pub}</AreaLabel>
