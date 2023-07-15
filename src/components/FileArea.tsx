@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import { ComponentPropsWithRef, Dispatch, ReactNode, SetStateAction, useState } from "react";
+import { ComponentPropsWithRef, Dispatch, ForwardedRef, ReactNode, RefObject, SetStateAction, forwardRef, useEffect, useState } from "react";
 import Modal from "./Modal";
 import Textarea from "./Textarea";
 import { escape } from "html-escaper";
@@ -44,13 +44,17 @@ export function Container({children, topbar, hasUnsaved, isLoading, onSave, onDe
     )
 }
 
-export function HalfContainer({children, borderRight}: {children: ReactNode, borderRight?: boolean}) {
+interface HalfContainerProps {
+    children: ReactNode, borderRight?: boolean
+}
+
+export const HalfContainer = forwardRef<HTMLDivElement, HalfContainerProps>(function({children, borderRight}: HalfContainerProps, ref: ForwardedRef<HTMLDivElement>) {
     return (
-        <div className={classNames("w-1/2 flex-shrink-0 flex-grow-0 p-8 h-full overflow-auto", borderRight && "border-r")}>
+        <div className={classNames("w-1/2 flex-shrink-0 flex-grow-0 p-8 h-full overflow-auto", borderRight && "border-r")} ref={ref}>
             {children}
         </div>
     )
-}
+});
 
 export function AreaLabel({children, className}: {children: ReactNode, className?: string}) {
     return (
@@ -73,11 +77,53 @@ export function TopbarInput(props: ComponentPropsWithRef<"input">) {
     )
 }
 
-export function AreaOfText({label, value, setValue, placeholder, className}: {label: string, value: string, setValue: Dispatch<SetStateAction<string>>, placeholder: string, className?: string}) {
-    const [isFind, setIsBodyFind] = useState<boolean>(false);
-    const [findString, setBodyFind] = useState<string>("");
+export function AreaOfText({label, value, setValue, placeholder, className, containerRef}: {label: string, value: string, setValue: Dispatch<SetStateAction<string>>, placeholder: string, className?: string, containerRef: RefObject<HTMLDivElement>}) {
+    const [isFind, setIsFind] = useState<boolean>(false);
+    const [findString, setFindString] = useState<string>("");
+    const [findIndex, setFindIndex] = useState<number>(0);
 
     const numMatches = findString ? escape(value).split(findString).length - 1 : 0;
+
+    useEffect(() => {
+        setFindIndex(0);
+        updateHighlight(0);
+    }, [findString]);
+
+    function onFindEnter() {
+        const newIndex = (findIndex + 1) % numMatches;
+        setFindIndex(newIndex);
+        updateHighlight(newIndex);
+    }
+
+    function updateHighlight(index: number) {
+        if (numMatches && containerRef.current) {
+            const matches = containerRef.current.querySelectorAll("mark");
+
+            matches.forEach(d => {
+                d.className = "";
+                d.classList.add("bg-yellow-100");
+            });
+
+            const thisMatch = matches[index];
+
+            if (thisMatch) {
+                thisMatch.className = "";
+                thisMatch.classList.add("bg-yellow-400");
+                const thisTop = thisMatch.offsetTop;
+                containerRef.current.scrollTop = thisTop;
+            }
+        }
+    }
+
+    function onToggleFind() {
+        if (isFind) {
+            setIsFind(false);
+        } else {
+            setIsFind(true);
+            setFindIndex(0);
+            updateHighlight(0);
+        }
+    }
 
     return (
         <>
@@ -87,12 +133,14 @@ export function AreaOfText({label, value, setValue, placeholder, className}: {la
                     {isFind && (
                         <>
                             {findString && (
-                                <span className="text-xs mr-2 whitespace-nowrap opacity-50">{numMatches} match{numMatches !== 1 && "es"}</span>
+                                <span className="text-xs mr-2 whitespace-nowrap opacity-50">{!!numMatches && (findIndex + 1) + "/"}{numMatches} match{numMatches !== 1 && "es"}</span>
                             )}
-                            <input type="text" className="border p-1 w-full mr-2 text-sm" placeholder="Find in body" value={findString} onChange={e => setBodyFind(e.target.value)}/>
+                            <input type="text" className="border p-1 w-full mr-2 text-sm" placeholder="Find in body" value={findString} onChange={e => setFindString(e.target.value)} onKeyDown={e => {
+                                if (e.key === "Enter") onFindEnter();
+                            }}/>
                         </>
                     )}
-                    <button className="text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={() => setIsBodyFind(prev => !prev)}>{isFind ? "Close" : "Find"}</button>
+                    <button className="text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={onToggleFind}>{isFind ? "Close" : "Find"}</button>
                 </div>
             </div>
             <Textarea value={value} setValue={setValue} placeholder={placeholder} className={className} highlight={isFind ? findString : ""}/>

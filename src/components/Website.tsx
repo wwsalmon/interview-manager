@@ -1,5 +1,5 @@
 import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
 import { AreaLabel, AreaOfText, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
@@ -15,6 +15,8 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [showWebsite, setShowWebsite] = useState<boolean>(false);
+
+    const bodyRef = useRef<HTMLDivElement>(null);
 
     const hasUnsaved = (contents.body !== body) || (contents.date !== date) || (contents.pub !== pub) || (contents.name !== name);
 
@@ -129,8 +131,8 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
                     </div>
                 )}
             </div>
-            <HalfContainer>
-                <AreaOfText label="Notes" value={body} setValue={setBody} placeholder="Summary, good quotes, etc."/>
+            <HalfContainer ref={bodyRef}>
+                <AreaOfText label="Notes" value={body} setValue={setBody} placeholder="Summary, good quotes, etc." containerRef={bodyRef}/>
             </HalfContainer>
         </Container>
     )

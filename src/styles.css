@@ -7,5 +7,5 @@ body {
 }
 
 mark {
-    background-color: yellow;
+    @apply bg-yellow-100;
 }
