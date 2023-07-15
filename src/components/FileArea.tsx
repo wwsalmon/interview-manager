@@ -1,6 +1,7 @@
 import classNames from "classnames";
-import { ComponentPropsWithRef, ReactNode, useState } from "react";
+import { ComponentPropsWithRef, Dispatch, ReactNode, SetStateAction, useState } from "react";
 import Modal from "./Modal";
+import Textarea from "./Textarea";
 
 export function Container({children, topbar, hasUnsaved, isLoading, onSave, onDelete}: {children: ReactNode, topbar: ReactNode, hasUnsaved?: boolean, isLoading: boolean, onSave?: () => any, onDelete: () => any}) {
     const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -50,9 +51,9 @@ export function HalfContainer({children, borderRight}: {children: ReactNode, bor
     )
 }
 
-export function AreaLabel({children}: {children: ReactNode}) {
+export function AreaLabel({children, className}: {children: ReactNode, className?: string}) {
     return (
-        <p className="text-xs uppercase font-bold mb-8">{children}</p>
+        <p className={classNames("text-xs uppercase font-bold", className)}>{children}</p>
     )
 }
 
@@ -68,5 +69,25 @@ export function TopbarInput(props: ComponentPropsWithRef<"input">) {
 
     return (
         <input {...domProps} className={classNames("mr-4 text-sm border p-1 flex-shrink-0", props.className)}/>
+    )
+}
+
+export function AreaOfText({label, value, setValue, placeholder, className}: {label: string, value: string, setValue: Dispatch<SetStateAction<string>>, placeholder: string, className?: string}) {
+    const [isFind, setIsBodyFind] = useState<boolean>(false);
+    const [findString, setBodyFind] = useState<string>("");
+
+    return (
+        <>
+            <div className="flex items-center mb-8 sticky -top-8 bg-white z-10 h-10">
+                <AreaLabel>{label}</AreaLabel>
+                <div className="flex items-center ml-auto">
+                    {isFind && (
+                        <input type="text" className="border p-1 w-full mr-4 text-sm" placeholder="Find in body" value={findString} onChange={e => setBodyFind(e.target.value)}/>
+                    )}
+                    <button className="text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={() => setIsBodyFind(prev => !prev)}>{isFind ? "Close" : "Find"}</button>
+                </div>
+            </div>
+            <Textarea value={value} setValue={setValue} placeholder={placeholder} className={className} highlight={isFind ? findString : ""}/>
+        </>
     )
 }

@@ -1,9 +1,8 @@
-import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
-import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
+import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
+import { useEffect, useState } from "react";
 import { FileAreaProps } from "./Audio";
+import { AreaOfText, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
 export default function Interview({dir, selected, afterDelete, updateSidebar, isUnsaved, setIsUnsaved}: FileAreaProps) {
     const [name, setName] = useState<string>("");
@@ -98,12 +97,10 @@ export default function Interview({dir, selected, afterDelete, updateSidebar, is
             onDelete={onDelete}
         >
             <HalfContainer borderRight={true}>
-                <AreaLabel>Body</AreaLabel>
-                <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc." className="font-mono"/>
+                <AreaOfText label="Body" value={body} setValue={setBody} placeholder="Transcript, main content, etc." className="font-mono"/>
             </HalfContainer>
             <HalfContainer>
-                <AreaLabel>Notes</AreaLabel>
-                <Textarea value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc."/>
+                <AreaOfText label="Notes" value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc."/>
             </HalfContainer>
         </Container>
     )

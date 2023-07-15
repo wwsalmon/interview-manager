@@ -5,3 +5,7 @@
 body {
     overflow: hidden;
 }
+
+mark {
+    background-color: yellow;
+}
