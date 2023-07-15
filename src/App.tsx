@@ -221,7 +221,7 @@ export default function App() {
       return type === tab;
     });
 
-  const version = "0.1.2";
+  const version = "0.1.3";
 
   return (
     <div>
