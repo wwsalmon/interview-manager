@@ -2,6 +2,7 @@ import classNames from "classnames";
 import { ComponentPropsWithRef, Dispatch, ReactNode, SetStateAction, useState } from "react";
 import Modal from "./Modal";
 import Textarea from "./Textarea";
+import { escape } from "html-escaper";
 
 export function Container({children, topbar, hasUnsaved, isLoading, onSave, onDelete}: {children: ReactNode, topbar: ReactNode, hasUnsaved?: boolean, isLoading: boolean, onSave?: () => any, onDelete: () => any}) {
     const [deleteOpen, setDeleteOpen] = useState<boolean>(false);
@@ -76,13 +77,20 @@ export function AreaOfText({label, value, setValue, placeholder, className}: {la
     const [isFind, setIsBodyFind] = useState<boolean>(false);
     const [findString, setBodyFind] = useState<string>("");
 
+    const numMatches = findString ? escape(value).split(findString).length - 1 : 0;
+
     return (
         <>
             <div className="flex items-center mb-8 sticky -top-8 bg-white z-10 h-10">
                 <AreaLabel>{label}</AreaLabel>
                 <div className="flex items-center ml-auto">
                     {isFind && (
-                        <input type="text" className="border p-1 w-full mr-4 text-sm" placeholder="Find in body" value={findString} onChange={e => setBodyFind(e.target.value)}/>
+                        <>
+                            {findString && (
+                                <span className="text-xs mr-2 whitespace-nowrap opacity-50">{numMatches} match{numMatches !== 1 && "es"}</span>
+                            )}
+                            <input type="text" className="border p-1 w-full mr-2 text-sm" placeholder="Find in body" value={findString} onChange={e => setBodyFind(e.target.value)}/>
+                        </>
                     )}
                     <button className="text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={() => setIsBodyFind(prev => !prev)}>{isFind ? "Close" : "Find"}</button>
                 </div>
