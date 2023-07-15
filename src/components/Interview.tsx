@@ -1,9 +1,8 @@
-import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
-import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
+import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
+import { useEffect, useRef, useState } from "react";
 import { FileAreaProps } from "./Audio";
+import { AreaOfText, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 
 export default function Interview({dir, selected, afterDelete, updateSidebar, isUnsaved, setIsUnsaved}: FileAreaProps) {
     const [name, setName] = useState<string>("");
@@ -13,6 +12,9 @@ export default function Interview({dir, selected, afterDelete, updateSidebar, is
     const [contents, setContents] = useState<{name: string, date: string, body: string, notes: string}>({name: "", date: "", body: "", notes: ""});
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
+
+    const bodyRef = useRef<HTMLDivElement>(null);
+    const notesRef = useRef<HTMLDivElement>(null);
 
     const hasUnsaved = (contents.body !== body) || (contents.date !== date) || (contents.notes !== notes) || (contents.name !== name);
 
@@ -97,13 +99,11 @@ export default function Interview({dir, selected, afterDelete, updateSidebar, is
             onSave={onSave}
             onDelete={onDelete}
         >
-            <HalfContainer borderRight={true}>
-                <AreaLabel>Body</AreaLabel>
-                <Textarea value={body} setValue={setBody} placeholder="Transcript, main content, etc." className="font-mono"/>
+            <HalfContainer borderRight={true} ref={bodyRef}>
+                <AreaOfText label="Body" value={body} setValue={setBody} placeholder="Transcript, main content, etc." className="font-mono" containerRef={bodyRef}/>
             </HalfContainer>
-            <HalfContainer>
-                <AreaLabel>Notes</AreaLabel>
-                <Textarea value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc."/>
+            <HalfContainer ref={notesRef}>
+                <AreaOfText label="Notes" value={notes} setValue={setNotes} placeholder="Summary, good quotes, etc." containerRef={notesRef}/>
             </HalfContainer>
         </Container>
     )

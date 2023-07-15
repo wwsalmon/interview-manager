@@ -1,8 +1,8 @@
 import { BaseDirectory, readTextFile, removeFile, writeTextFile } from "@tauri-apps/api/fs";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Textarea from "./Textarea";
 import { listen } from "@tauri-apps/api/event";
-import { AreaLabel, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
+import { AreaLabel, AreaOfText, Container, HalfContainer, TopbarInput, TopbarLabel } from "./FileArea";
 import { FileAreaProps } from "./Audio";
 
 export default function Website({dir, selected, afterDelete, updateSidebar, isUnsaved, setIsUnsaved}: FileAreaProps) {
@@ -15,6 +15,8 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [showWebsite, setShowWebsite] = useState<boolean>(false);
+
+    const bodyRef = useRef<HTMLDivElement>(null);
 
     const hasUnsaved = (contents.body !== body) || (contents.date !== date) || (contents.pub !== pub) || (contents.name !== name);
 
@@ -117,10 +119,10 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
                     </>
                 ) : (
                     <div className="p-8">
-                        <AreaLabel>{contents.pub}</AreaLabel>
+                        <AreaLabel className="mb-8">{contents.pub}</AreaLabel>
                         <p className="-mt-4 text-xl mb-4 opacity-50">{contents.name}</p>
                         <p className="mb-12 text-sm opacity-50">{url}</p>
-                        <AreaLabel>Show website</AreaLabel>
+                        <AreaLabel className="mb-8">Show website</AreaLabel>
                         <div className="flex items-center mb-8">
                             <a href={url} className="text-sm text-white px-4 py-1 bg-gray-800 block" target="_blank">Open in new window</a>
                             <button onClick={() => setShowWebsite(true)} className="px-4 py-1 text-sm text-white bg-gray-800 ml-4">Open in app</button>
@@ -129,9 +131,8 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
                     </div>
                 )}
             </div>
-            <HalfContainer>
-                <AreaLabel>Notes</AreaLabel>
-                <Textarea value={body} setValue={setBody} placeholder="Summary, good quotes, etc."/>
+            <HalfContainer ref={bodyRef}>
+                <AreaOfText label="Notes" value={body} setValue={setBody} placeholder="Summary, good quotes, etc." containerRef={bodyRef}/>
             </HalfContainer>
         </Container>
     )

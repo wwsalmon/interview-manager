@@ -221,7 +221,7 @@ export default function App() {
       return type === tab;
     });
 
-  const version = "0.1.2";
+  const version = "0.1.3";
 
   return (
     <div>
@@ -270,11 +270,11 @@ export default function App() {
           <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
           <div style={{width: "calc(100% - 256px)"}}>
             {(dir && selected) ? selectedIsWebsite ? (
-              <Website dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
+              <Website dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved} key={selected}/>
             ) : selectedIsAudio ? (
-              <Audio dir={dir} selected={selected} setSelected={setSelected} afterDelete={afterDelete} updateSidebar={afterOpen} revKey={settings.revKey} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
+              <Audio dir={dir} selected={selected} setSelected={setSelected} afterDelete={afterDelete} updateSidebar={afterOpen} revKey={settings.revKey} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved} key={selected}/>
             ) : (
-              <Interview dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
+              <Interview dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved} key={selected}/>
             ) : (
               <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
             )}

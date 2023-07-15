@@ -5,3 +5,7 @@
 body {
     overflow: hidden;
 }
+
+mark {
+    @apply bg-yellow-100;
+}
