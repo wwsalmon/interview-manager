@@ -24,18 +24,18 @@ export function Container({children, topbar, hasUnsaved, isLoading, onSave, onDe
                         <p className={classNames("text-sm ml-4", (!isLoading && hasUnsaved) ? "text-red-500" : "opacity-50")}>{isLoading ? "Saving..." : hasUnsaved ? "Unsaved changes" : "All changes saved"}</p>
                     </>
                 )}
-                <button className="ml-auto text-white bg-red-700 hover:bg-red-500 disabled:opacity-25 text-sm px-4 py-1" onClick={() => setDeleteOpen(true)} disabled={isLoading}>Delete</button>
+                <button className="ml-auto text-white font-mono bg-red-700 hover:bg-red-500 disabled:opacity-25 text-xs px-3 rounded py-2" onClick={() => setDeleteOpen(true)} disabled={isLoading}>Delete</button>
             </div>
             <Modal isOpen={deleteOpen} setIsOpen={setDeleteOpen}>
                 <p className="text-center font-bold">Are you sure you want to delete this file?</p>
                 <p className="text-center my-6">This action cannot be undone.</p>
                 <button
-                    className="w-full bg-red-500 p-2 text-white disabled:opacity-25"
+                    className="accent-button !bg-red-500 w-full"
                     onClick={onDelete}
                     disabled={isLoading}
                 >{isLoading ? "Loading..." : "Delete"}</button>
                 <button
-                    className="w-full bg-gray-700 p-2 text-white mt-2 disabled:opacity-25"
+                    className="px-3 py-2 font-mono text-sm border rounded hover:brightness-90 mt-2 w-full"
                     onClick={() => setDeleteOpen(false)}
                     disabled={isLoading}
                 >Cancel</button>
