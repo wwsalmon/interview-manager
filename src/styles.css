@@ -7,6 +7,10 @@ body {
     background-color: #F9F6EE;
 }
 
+.ReactModal__Overlay {
+    z-index: 10;
+}
+
 mark {
     @apply bg-yellow-100;
 }
