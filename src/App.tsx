@@ -187,6 +187,10 @@ export default function App() {
       const newFiles = newParsed.map((d, i) => ({...d, fileName: files[i].name})).sort((a,b) => (a.date && b.date) ? (+new Date(b.date) - +new Date(a.date)) : 0);
       setContents(newFiles);
       setIsUnsaved(false);
+
+      if (newFiles.length) {
+        setSelected(newFiles[0].fileName);
+      }
     }
   }
 
@@ -245,7 +249,7 @@ export default function App() {
               {filteredContent.map((d) => (
                 <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
               ))}
-              <div className="px-3 pb-3">
+              <div className="px-3 pb-3 opacity-50">
                 <hr className="my-3"/>
                 <div className="flex items-center gap-4">
                 <img src="/3dlogo.png" alt="szhim logo" className="h-8"/>
