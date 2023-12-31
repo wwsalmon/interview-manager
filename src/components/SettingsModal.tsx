@@ -54,7 +54,7 @@ export default function SettingsModal({isSettings, setIsSettings, settings, setS
             <p className="my-2 text-sm opacity-50">rev.ai is the transcription service used by SZH Interview Manager. The transcription service has a small cost ($0.02/minute), so to keep Interview Manager free, you have to bring your own key to use transcription. Go to <a href="https://rev.ai/" className="underline" target="_blank">rev.ai</a> to make an account and get an API key, then put it below to use transcription.</p>
             <ModalInput value={revKey} onChange={e => setRevKey(e.target.value)} placeholder="ex. ABCDE"/>
             <button
-            className="w-full bg-gray-800 p-2 text-white mt-auto disabled:opacity-50"
+            className="w-full bg-neutral-800 p-2 text-white mt-auto disabled:opacity-50"
             disabled={!unsavedSettings}
             onClick={onSaveRevKey}
             >Save key</button>

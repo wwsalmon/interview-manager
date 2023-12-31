@@ -28,7 +28,7 @@ export default function SidebarFile({ content, selected, setSelected, isUnsaved,
 
     return (
         <button
-            className={classNames("p-4 block w-full text-left break-all", isSelected ? "bg-white disabled border-t border-b" : "hover:bg-gray-200")}
+            className={classNames("p-4 block w-full text-left break-all", isSelected ? "bg-white disabled border-t border-b" : "hover:bg-neutral-200")}
             onClick={onClick}
         >
             <p className="text-sm truncate mb-1 leading-tight font-semibold">{content.name}</p>

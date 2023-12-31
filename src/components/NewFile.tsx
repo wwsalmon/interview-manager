@@ -55,7 +55,7 @@ export default function NewFile({ setIsNewModal, dir, afterOpen, setSelected, re
         <>
             <h2 className="font-bold">Add interview</h2>
             <p>Upload audio file to transcribe</p>
-            <button className="text-center w-full py-4 bg-gray-100 rounded border hover:brightness-90 my-4 font-mono text-sm" onClick={openAudioFile}>Upload audio file</button>
+            <button className="text-center w-full py-4 bg-neutral-100 rounded border hover:brightness-90 my-4 font-mono text-sm" onClick={openAudioFile}>Upload audio file</button>
             {audioFile && (
                 <p className="font-mono text-sm"><b>Selected:</b> {audioFile.split("/").pop()}</p>
             )}

@@ -20,7 +20,7 @@ export function Container({children, topbar, hasUnsaved, isLoading, onSave, onDe
             <div className="h-12 border-t w-full flex items-center px-4 flex-shrink-0">
                 {onSave && (
                     <>
-                        <button disabled={!hasUnsaved || isLoading} onClick={onSave} className="px-4 py-1 text-sm text-white bg-gray-800 disabled:opacity-25">Save (Cmd + S)</button>
+                        <button disabled={!hasUnsaved || isLoading} onClick={onSave} className="accent-button !text-xs !bg-neutral-800">Save (Cmd + S)</button>
                         <p className={classNames("text-sm ml-4", (!isLoading && hasUnsaved) ? "text-red-500" : "opacity-50")}>{isLoading ? "Saving..." : hasUnsaved ? "Unsaved changes" : "All changes saved"}</p>
                     </>
                 )}
