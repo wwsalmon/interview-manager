@@ -242,7 +242,7 @@ export default function App() {
                 <p className="font-bold truncate">{getProjectName()}</p>
               </div>
               <div className="px-3 my-4">
-                <button onClick={onNew} className="font-mono text-white bg-accent block py-3 my-4 leading-none text-sm w-full rounded font-semibold hover:shadow hover:brightness-90">+ Add interview</button>
+                <button onClick={onNew} className="accent-button w-full block my-4 ">+ Add interview</button>
                 <label className="text-xs font-medium mb-2 inline-block">Search interviews ({filteredContent.length}{searchString && " matching query"})</label>
                 <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search title and body text" className="text-sm w-full p-1 border rounded"/>
               </div>
@@ -293,7 +293,7 @@ export default function App() {
             </div>
             <div className="flex items-center gap-4 my-12">
               <p className="opacity-50 text-sm">Open a project folder (any folder) to save interviews and transcripts to.</p>
-              <button className="text-xs font-mono bg-accent text-white px-3 py-2 rounded leading-none flex items-center gap-3 ml-auto flex-shrink-0" onClick={onOpen}><FiFolder></FiFolder> Open folder</button>
+              <button className="!text-xs leading-none accent-button flex items-center gap-3 ml-auto flex-shrink-0" onClick={onOpen}><FiFolder></FiFolder> Open folder</button>
             </div>
             <p className="uppercase font-bold text-sm mt-12">Recent folders</p>
             {settings.recent.length ? settings.recent.map(d => (

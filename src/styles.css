@@ -14,3 +14,7 @@ body {
 mark {
     @apply bg-yellow-100;
 }
+
+.accent-button {
+    @apply px-3 py-2 text-sm font-semibold font-mono text-white bg-accent rounded hover:brightness-90 disabled:opacity-25 hover:shadow;
+}

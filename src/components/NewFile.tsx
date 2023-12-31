@@ -60,7 +60,7 @@ export default function NewFile({ setIsNewModal, dir, afterOpen, setSelected, re
                 <p className="font-mono text-sm"><b>Selected:</b> {audioFile.split("/").pop()}</p>
             )}
             <div className="flex items-center mt-4 gap-4">
-                <button className="bg-accent text-white font-mono text-sm font-semibold px-3 py-2 rounded disabled:opacity-50 hover:brightness-90" disabled={!audioFile || audioLoading} onClick={submitAudio}>{audioLoading ? "Loading..." : "Transcribe →"}</button>
+                <button className="accent-button" disabled={!audioFile || audioLoading} onClick={submitAudio}>{audioLoading ? "Loading..." : "Transcribe →"}</button>
                 <button className="font-mono text-sm font-semibold px-3 py-2 rounded opacity-75 hover:opacity-100 border" disabled={audioLoading} onClick={onCreate}>Add manually</button>
             </div>
         </>

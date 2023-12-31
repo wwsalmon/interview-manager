@@ -134,10 +134,10 @@ export default function Audio({dir, selected, afterDelete, updateSidebar, revKey
                 <p>status: {contents.status}</p>
                 <p>path: {contents.path}</p>
                 {["no_check", "in_progress"].includes(contents.status) && (
-                    <button disabled={isLoading} onClick={onRevLoad} className="px-4 py-1 text-sm text-white bg-gray-800 disabled:opacity-25">{isLoading ? "Loading..." : "Refresh"}</button>
+                    <button disabled={isLoading} onClick={onRevLoad} className="accent-button">{isLoading ? "Loading..." : "Refresh"}</button>
                 )}
                 {["transcribed"].includes(contents.status) && (
-                    <button disabled={isLoading} onClick={createInterview} className="px-4 py-1 text-sm text-white bg-gray-800 disabled:opacity-25">{isLoading ? "Loading..." : "Load transcript as interview"}</button>
+                    <button disabled={isLoading} onClick={createInterview} className="accent-button">{isLoading ? "Loading..." : "Load transcript as interview"}</button>
                 )}
             </div>
         </Container>
