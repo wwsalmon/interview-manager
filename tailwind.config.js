@@ -5,6 +5,7 @@ export default {
     extend: {
       colors: {
         accent: "#963A89",
+        offwhite: "#F9F6EE",
       }
     },
   },

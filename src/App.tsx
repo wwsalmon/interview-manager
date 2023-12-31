@@ -1,16 +1,17 @@
 import { invoke } from "@tauri-apps/api";
-import { open, confirm } from "@tauri-apps/api/dialog";
+import { confirm, open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, createDir, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
 import { ComponentPropsWithRef, ReactNode, useEffect, useState } from "react";
+import { FiFolder } from "react-icons/fi";
+import Audio, { AudioFile } from "./components/Audio";
 import Interview from "./components/Interview";
-import NewFileModal from "./components/NewFileModal";
+import Modal from "./components/Modal";
+import NewFile from "./components/NewFile";
 import SettingsModal from "./components/SettingsModal";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
-import Audio, { AudioFile } from "./components/Audio";
-import {FiFolder, FiGlobe, FiMessageCircle, FiUploadCloud} from "react-icons/fi";
 
 export interface InterviewFile {
   name: string,
@@ -237,15 +238,27 @@ export default function App() {
                 <p className="font-bold truncate">{getProjectName()}</p>
               </div>
               <div className="px-3 my-4">
-                <button onClick={onNew} className="font-mono text-white bg-accent block py-3 my-4 leading-none text-sm w-full rounded font-semibold hover:shadow hover:brightness-90">+ New interview</button>
+                <button onClick={onNew} className="font-mono text-white bg-accent block py-3 my-4 leading-none text-sm w-full rounded font-semibold hover:shadow hover:brightness-90">+ Add interview</button>
                 <label className="text-xs font-medium mb-2 inline-block">Search interviews ({filteredContent.length}{searchString && " matching query"})</label>
                 <input type="text" value={searchString} onChange={e => setSearchString(e.target.value)} placeholder="Search title and body text" className="text-sm w-full p-1 border rounded"/>
               </div>
               {filteredContent.map((d) => (
                 <SidebarFile key={d.fileName} content={d} selected={selected} setSelected={setSelected} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved}/>
               ))}
+              <div className="px-3 pb-3">
+                <hr className="my-3"/>
+                <div className="flex items-center gap-4">
+                <img src="/3dlogo.png" alt="szhim logo" className="h-8"/>
+                <div>
+                  <h1 className="font-bold">Interview manager</h1>
+                  <p className="font-mono text-xs">v{version}</p>
+                </div>
+              </div>
+              </div>
             </div>
-            <NewFileModal isNewModal={isNewModal} setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
+            <Modal isOpen={isNewModal} setIsOpen={setIsNewModal}>
+                <NewFile setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
+            </Modal>
             <div style={{width: "calc(100% - 280px)"}} className="bg-white shadow-xl">
               {(dir && selected) ? selectedIsWebsite ? (
                 <Website dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved} key={selected}/>
@@ -254,7 +267,9 @@ export default function App() {
               ) : (
                 <Interview dir={dir} selected={selected} afterDelete={afterDelete} updateSidebar={afterOpen} isUnsaved={isUnsaved} setIsUnsaved={setIsUnsaved} key={selected}/>
               ) : (
-                <p className="p-4 text-center">No file open, select on sidebar or press Ctrl + N to create new file</p>
+                <div className="max-w-md mx-auto px-4 py-8">
+                  <NewFile setIsNewModal={setIsNewModal} dir={dir} afterOpen={afterOpen} setSelected={setSelected} revKey={settings.revKey}/>
+                </div>
               )}
             </div>
           </div>

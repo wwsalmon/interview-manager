@@ -4,7 +4,7 @@
 
 body {
     overflow: hidden;
-    background-color: #F9F6EE;
+    @apply bg-offwhite;
 }
 
 .ReactModal__Overlay {
