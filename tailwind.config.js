@@ -2,7 +2,11 @@
 export default {
   content: ["./src/**/*.tsx"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        accent: "#963A89",
+      }
+    },
   },
   plugins: [],
 }

@@ -282,25 +282,33 @@ export default function App() {
         </div>
       ) : (
         <>
-          <div className="w-full bg-[#111] py-8 text-white text-center">
-            <img src="/3dlogo.png" alt="szhim logo" className="max-w-sm mx-auto"/>
-            <p className="font-mono font-black text-3xl mt-8 opacity-90">interview manager</p>
-            <p className="mt-2 opacity-50 text-sm">
-              By Samson Zhang | v{version}
-            </p>
-          </div>  
-          <p className="p-4 text-center">No folder open, press Ctrl/Cmd + O</p>
-          <div className="max-w-sm mx-auto">
-            <p className="uppercase font-bold text-sm my-6">Recently opened projects</p>
-            {settings.recent.length ? settings.recent.map(d => (
-              <button className="p-2 block w-full bg-gray-100 hover:bg-gray-300 my-2" key={d} onClick={() => {
-                setDir(d);
-                updateRecent(d);
-                setSelected("");
-              }}>{d}</button>
-            )) : (
-              <p>No recently opened projects.</p>
-            )}
+          <div className="max-w-md p-8 bg-white shadow-lg mx-auto mt-16 rounded-lg">
+            <div className="flex items-center gap-8">
+              <img src="/3dlogo.png" alt="szhim logo" className="h-16"/>
+              <div>
+                <h1 className="text-xl font-bold">Interview manager</h1>
+                <p className="font-mono text-sm">v{version}</p>
+              </div>
+            </div>
+            <div className="max-w-sm mx-auto">
+              <div className="flex items-center gap-4">
+                <p className="uppercase font-bold text-sm my-6">Recent projects</p>
+                <button className="text-sm font-mono ml-auto px-3 py-2 border rounded leading-none">Open folder</button>
+                <button className="text-sm font-mono bg-accent text-white px-3 py-2 rounded leading-none">+ New</button>
+              </div>
+              {settings.recent.length ? settings.recent.map(d => (
+                <button className="text-left block mt-6 opacity-50 hover:opacity-100" key={d} onClick={() => {
+                  setDir(d);
+                  updateRecent(d);
+                  setSelected("");
+                }}>
+                  <p className="font-mono text-sm opacity-50">{d.replace(/(^.*?)([^\\\/]*)$/, "$1")}</p>
+                  <p className="font-semibold">{d.replace(/(^.*?)([^\\\/]*)$/, "$2")}</p>
+                </button>
+              )) : (
+                <p>No recently opened projects.</p>
+              )}
+            </div>
           </div>
         </>
       )}
