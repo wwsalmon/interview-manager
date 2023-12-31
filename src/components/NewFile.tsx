@@ -29,7 +29,7 @@ export default function NewFile({ setIsNewModal, dir, afterOpen, setSelected, re
             const res = await invoke("upload_rev", {path: audioFile, key: revKey });
             const parsed = JSON.parse(res as string);
 
-            const newName = audioFile.split("/").pop() || "Untitled";
+            const newName = audioFile.split("/").pop()?.replace(/(^.*)\..*$/, "$1") || "Untitled";
             const fileName = encodeURIComponent(newName).substring(0, 20) + "-" + short.generate() + ".szha";
 
             await writeTextFile(dir + "/" + fileName, JSON.stringify({name: newName, date: new Date(), id: parsed.id, path: audioFile, status: parsed.status, failure_detail: parsed.failure_detail || ""}), { dir: BaseDirectory.Home });
@@ -60,8 +60,8 @@ export default function NewFile({ setIsNewModal, dir, afterOpen, setSelected, re
                 <p className="font-mono text-sm"><b>Selected:</b> {audioFile.split("/").pop()}</p>
             )}
             <div className="flex items-center mt-4 gap-4">
-                <button className="bg-accent text-white font-mono text-sm font-semibold px-3 py-2 rounded disabled:opacity-50 hover:brightness-90" disabled={!audioFile}>Transcribe →</button>
-                <button className="font-mono text-sm font-semibold px-3 py-2 rounded opacity-75 hover:opacity-100 border" onClick={onCreate}>Add manually</button>
+                <button className="bg-accent text-white font-mono text-sm font-semibold px-3 py-2 rounded disabled:opacity-50 hover:brightness-90" disabled={!audioFile || audioLoading} onClick={submitAudio}>{audioLoading ? "Loading..." : "Transcribe →"}</button>
+                <button className="font-mono text-sm font-semibold px-3 py-2 rounded opacity-75 hover:opacity-100 border" disabled={audioLoading} onClick={onCreate}>Add manually</button>
             </div>
         </>
     )
