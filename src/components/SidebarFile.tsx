@@ -26,15 +26,12 @@ export default function SidebarFile({ content, selected, setSelected, isUnsaved,
         setSelected(content.fileName);
     }
 
-    const color = isWebsite ? "text-blue-800" : isAudio ? "text-yellow-800" : "text-green-800"   
-
     return (
         <button
             className={classNames("p-4 block w-full text-left break-all", isSelected ? "bg-white disabled border-t border-b" : "hover:bg-gray-200")}
             onClick={onClick}
         >
-            <p className={classNames("text-[9px] uppercase font-bold", color)}>{isAudio ? "Transcription in progress" : isWebsite ? "Website" : "Interview"} {isWebsite && ` | ${content.pub}`}</p>
-            <p className="text-sm line-clamp-2 my-1 leading-tight font-medium">{content.name}</p>
+            <p className="text-sm truncate mb-1 leading-tight font-semibold">{content.name}</p>
             <p className="text-xs opacity-50 line-clamp-2">{content.date && format(dateOnly(content.date), "MMMM d, yyyy") } {!!content.date && !!previewText && " | "} {previewText}</p>
         </button>
     )
