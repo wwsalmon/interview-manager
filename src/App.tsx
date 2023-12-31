@@ -283,18 +283,18 @@ export default function App() {
       ) : (
         <>
           <div className="max-w-md p-8 bg-white shadow-lg mx-auto mt-16 rounded-lg">
-            <div className="flex items-center gap-8 mb-6">
+            <div className="flex items-center gap-8">
               <img src="/3dlogo.png" alt="szhim logo" className="h-16"/>
               <div>
                 <h1 className="text-xl font-bold">Interview manager</h1>
                 <p className="font-mono text-sm">v{version}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <p className="opacity-50 text-sm mt-2">Open a project folder (any folder) to save interviews and transcripts to.</p>
+            <div className="flex items-center gap-4 my-12">
+              <p className="opacity-50 text-sm">Open a project folder (any folder) to save interviews and transcripts to.</p>
               <button className="text-xs font-mono bg-accent text-white px-3 py-2 rounded leading-none flex items-center gap-3 ml-auto flex-shrink-0" onClick={onOpen}><FiFolder></FiFolder> Open folder</button>
             </div>
-            <p className="uppercase font-bold text-sm mt-8">Recent folders</p>
+            <p className="uppercase font-bold text-sm mt-12">Recent folders</p>
             {settings.recent.length ? settings.recent.map(d => (
               <button className="text-left block mt-6 opacity-50 hover:opacity-100" key={d} onClick={() => {
                 setDir(d);
