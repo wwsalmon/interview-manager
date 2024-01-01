@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api";
 import { confirm, open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, createDir, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
@@ -37,9 +36,6 @@ export interface Settings {
     recent: string[],
     revKey: string,
 }
-
-// https://gist.github.com/RavenHursT/fe8a95a59109096ac1f8
-const getRoot = (url = "") => (new URL(url)).hostname.split(".").slice(-2).join(".");
 
 export function ModalLabel({children, className}: {children: ReactNode, className?: string}) {
     return (
