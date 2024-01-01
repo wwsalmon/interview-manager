@@ -142,7 +142,7 @@ export default function App() {
 
   useEffect(() => {
     if (isNew) {
-      onNew();
+      if (dir) onNew();
       setIsNew(false);
     }
   }, [isNew]);
