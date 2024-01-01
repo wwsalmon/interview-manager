@@ -3,15 +3,16 @@ import { confirm, open } from "@tauri-apps/api/dialog";
 import { listen } from "@tauri-apps/api/event";
 import { BaseDirectory, createDir, exists, readDir, readTextFile, writeTextFile } from "@tauri-apps/api/fs";
 import classNames from "classnames";
-import { ComponentPropsWithRef, ReactNode, useEffect, useState } from "react";
+import { ComponentPropsWithRef, Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react";
 import { FiFolder } from "react-icons/fi";
 import Audio, { AudioFile } from "./components/Audio";
+import HomeProject from "./components/HomeProject";
 import Interview from "./components/Interview";
 import Modal from "./components/Modal";
 import NewFile from "./components/NewFile";
+import ShellLink from "./components/ShellLink";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
-import ShellLink from "./components/ShellLink";
 
 export interface InterviewFile {
   name: string,
@@ -53,6 +54,17 @@ export function ModalInput(props: ComponentPropsWithRef<"input">) {
   return (
     <input className={classNames("border w-full p-2 mb-6", props.className)} {...domProps}/>
   )
+}
+
+export function updateRecent(thisDir: string, setSettings: Dispatch<SetStateAction<Settings | null>>, remove?: boolean) {
+  setSettings(prev => {
+    if (!prev) return {recent: remove ? [] : [thisDir], revKey: ""};
+    let newSettings = {...prev};
+    const prevWithoutThisDir = prev.recent.filter(d => d !== thisDir).slice(0, 5);
+    newSettings.recent = remove ? prevWithoutThisDir : [thisDir, ...prevWithoutThisDir];
+    writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig}); // is async but we don't care when it completes
+    return newSettings;
+  });
 }
 
 async function getMetaFromUrl(url: string) {
@@ -111,14 +123,6 @@ export default function App() {
     initSettings();
   }, []);
 
-  async function updateRecent(newDir: string) {
-    if (!newDir || settings === null) return;
-    let newSettings = {...settings};
-    newSettings.recent = [newDir, ...settings.recent.filter(d => d !== newDir).slice(0, 5)];
-    setSettings(newSettings);
-    await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
-  }
-
   useEffect(() => {
     listen("menu-event", e => {
       try {
@@ -158,7 +162,7 @@ export default function App() {
       return;
     }
     setDir(filepath as string);
-    updateRecent(filepath as string);
+    updateRecent(filepath as string, setSettings);
     setSelected("");
     setIsOpenLoading(false);
   }
@@ -323,14 +327,7 @@ export default function App() {
                 </div>
                 <p className="uppercase font-bold text-sm mt-12">Recent folders</p>
                 {settings.recent.length ? settings.recent.map(d => (
-                  <button className="text-left block mt-6 opacity-50 hover:opacity-100" key={d} onClick={() => {
-                    setDir(d);
-                    updateRecent(d);
-                    setSelected("");
-                  }}>
-                    <p className="font-mono text-xs opacity-50">{d.replace(/(^.*?)([^\\\/]*)$/, "$1")}</p>
-                    <p className="font-semibold">{d.replace(/(^.*?)([^\\\/]*)$/, "$2")}</p>
-                  </button>
+                  <HomeProject thisDir={d} key={d} setDir={setDir} setSelected={setSelected} setSettings={setSettings}/>
                 )) : (
                   <p>No recently opened projects.</p>
                 )}
