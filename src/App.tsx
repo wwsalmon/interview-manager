@@ -9,9 +9,9 @@ import Audio, { AudioFile } from "./components/Audio";
 import Interview from "./components/Interview";
 import Modal from "./components/Modal";
 import NewFile from "./components/NewFile";
-import SettingsModal from "./components/SettingsModal";
 import SidebarFile from "./components/SidebarFile";
 import Website from "./components/Website";
+import ShellLink from "./components/ShellLink";
 
 export interface InterviewFile {
   name: string,
@@ -75,11 +75,11 @@ export default function App() {
   const [selected, setSelected] = useState<string>("");
   const [searchString, setSearchString] = useState<string>("");
   const [isUnsaved, setIsUnsaved] = useState<boolean>(false);
-  const [tab, setTab] = useState<string>("All");
 
-  const [settings, setSettings] = useState<Settings>({recent: [], revKey: ""});
+  const [settings, setSettings] = useState<Settings | null>(null);
+  const [newRevKey, setNewRevKey] = useState<string>("");
 
-  const [isSettings, setIsSettings] = useState<boolean>(false);
+  const [isSettingLoading, setIsSettingLoading] = useState<boolean>(false);
 
   async function initSettings() {
     const hasSettings = await exists("settings.json", {dir: BaseDirectory.AppConfig});
@@ -110,7 +110,7 @@ export default function App() {
   }, []);
 
   async function updateRecent(newDir: string) {
-    if (!newDir) return;
+    if (!newDir || settings === null) return;
     let newSettings = {...settings};
     newSettings.recent = [newDir, ...settings.recent.filter(d => d !== newDir).slice(0, 5)];
     setSettings(newSettings);
@@ -124,8 +124,6 @@ export default function App() {
           setIsOpen(true);
         } else if (e.payload === "new-event") {
           setIsNew(true);
-        } else if (e.payload === "settings-event") {
-          setIsSettings(true);
         }
       } catch (e) {
         console.log(e);
@@ -215,22 +213,44 @@ export default function App() {
     afterOpen();
   }
 
+  async function onSave(newSettings: Settings) {
+      if (isSettingLoading) return;
+  
+      setIsSettingLoading(true);
+
+      const hasSettingsDir = await exists("", {dir: BaseDirectory.AppConfig});
+
+      if (!hasSettingsDir) {
+          await createDir("", {dir: BaseDirectory.AppConfig, recursive: true});
+      }
+  
+      await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
+  
+      setSettings(newSettings);
+  
+      setIsSettingLoading(false);
+  }
+  
+  async function onSaveRevKey() {
+    if (settings === null) return;
+
+    let newSettings = {...settings};
+
+    newSettings.revKey = newRevKey;
+
+    onSave(newSettings);
+  }
+
   const selectedIsWebsite = selected?.substring(selected.length - 5) === ".szhw";
   const selectedIsAudio = selected?.substring(selected.length - 5) === ".szha";
   const filteredContent = contents
-    .filter(d => [d.name, "body" in d ? d.body : "", "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())))
-    .filter(d => {
-      if (tab === "All") return true;
-      const ext = d.fileName.substring(d.fileName.length - 1);
-      const type = {w: "Website", i: "Interview", a: "Progress"}[ext];
-      return type === tab;
-    });
+    .filter(d => [d.name, "body" in d ? d.body : "", "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())));
 
   const version = "0.1.3";
 
   return (
     <div>
-      {dir ? (
+      {(settings !== null && dir) ? (
         <>
           {/* PROJECT UI */}
           {/* PROJECT UI */}
@@ -291,27 +311,44 @@ export default function App() {
                 <p className="font-mono text-sm">v{version}</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 my-12">
-              <p className="opacity-50 text-sm">Open a project folder (any folder) to save interviews and transcripts to.</p>
-              <button className="!text-xs leading-none accent-button flex items-center gap-3 ml-auto flex-shrink-0" onClick={onOpen}><FiFolder></FiFolder> Open folder</button>
-            </div>
-            <p className="uppercase font-bold text-sm mt-12">Recent folders</p>
-            {settings.recent.length ? settings.recent.map(d => (
-              <button className="text-left block mt-6 opacity-50 hover:opacity-100" key={d} onClick={() => {
-                setDir(d);
-                updateRecent(d);
-                setSelected("");
-              }}>
-                <p className="font-mono text-xs opacity-50">{d.replace(/(^.*?)([^\\\/]*)$/, "$1")}</p>
-                <p className="font-semibold">{d.replace(/(^.*?)([^\\\/]*)$/, "$2")}</p>
-              </button>
-            )) : (
-              <p>No recently opened projects.</p>
+            {settings === null ? (
+              <>
+                <p className="mt-6">Loading settings...</p>
+              </>
+            ) : (settings?.revKey) ? (
+              <>
+                <div className="flex items-center gap-4 my-12">
+                  <p className="opacity-50 text-sm">Open a project folder (any folder) to save interviews and transcripts to.</p>
+                  <button className="!text-xs leading-none accent-button flex items-center gap-3 ml-auto flex-shrink-0" onClick={onOpen}><FiFolder></FiFolder> Open folder</button>
+                </div>
+                <p className="uppercase font-bold text-sm mt-12">Recent folders</p>
+                {settings.recent.length ? settings.recent.map(d => (
+                  <button className="text-left block mt-6 opacity-50 hover:opacity-100" key={d} onClick={() => {
+                    setDir(d);
+                    updateRecent(d);
+                    setSelected("");
+                  }}>
+                    <p className="font-mono text-xs opacity-50">{d.replace(/(^.*?)([^\\\/]*)$/, "$1")}</p>
+                    <p className="font-semibold">{d.replace(/(^.*?)([^\\\/]*)$/, "$2")}</p>
+                  </button>
+                )) : (
+                  <p>No recently opened projects.</p>
+                )}
+              </>
+            ) : (
+              <>
+                <h1 className="text-2xl font-bold font-mono text-accent mt-6">Add Rev.ai access token to continue</h1>
+                <p className="my-6">This app uses a cloud service called <ShellLink href="https://www.rev.ai/" className="font-bold underline">Rev.ai</ShellLink> to transcribe audio. You get 5 hours for free, past that it’s $0.02/minute.</p>
+                <p className="my-6"><ShellLink href="https://www.rev.ai/auth/signup" className="font-bold underline">Sign up at rev.ai</ShellLink>, then create an access token (go to Access Token in the sidebar once you log in) and add it below to continue.</p>
+                <div className="flex items-center gap-2 mt-6">
+                  <input type="text" value={newRevKey} onChange={e => setNewRevKey(e.target.value)} className="border rounded text-sm px-3 py-2 w-full"/>
+                  <button className="accent-button flex items-center gap-2 flex-shrink-0" disabled={!newRevKey || isSettingLoading} onClick={onSaveRevKey}>{isSettingLoading ? "Loading..." : "Continue →"}</button>
+                </div>
+              </>
             )}
           </div>
         </>
       )}
-      <SettingsModal isSettings={isSettings} setIsSettings={setIsSettings} settings={settings} setSettings={setSettings}/>
     </div>
   );
 }
