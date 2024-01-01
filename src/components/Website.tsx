@@ -124,8 +124,8 @@ export default function Website({dir, selected, afterDelete, updateSidebar, isUn
                         <p className="mb-12 text-sm opacity-50">{url}</p>
                         <AreaLabel className="mb-8">Show website</AreaLabel>
                         <div className="flex items-center mb-8">
-                            <a href={url} className="text-sm text-white px-4 py-1 bg-gray-800 block" target="_blank">Open in new window</a>
-                            <button onClick={() => setShowWebsite(true)} className="px-4 py-1 text-sm text-white bg-gray-800 ml-4">Open in app</button>
+                            <a href={url} className="text-sm text-white px-4 py-1 bg-neutral-800 block" target="_blank">Open in new window</a>
+                            <button onClick={() => setShowWebsite(true)} className="px-4 py-1 text-sm text-white bg-neutral-800 ml-4">Open in app</button>
                         </div>
                         <p className="opacity-50 text-xs">Opening the website in app may fail as some websites don't allow being put in iframe</p>
                     </div>

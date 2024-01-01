@@ -11,9 +11,9 @@ export default function Modal({ children, isOpen, setIsOpen }: { children: React
                     backgroundColor: "rgba(0,0,0,0.5)",
                 },
                 content: {
-                    maxWidth: "400px",
-                    left: "50%",
-                    top: "50%",
+                    width: "400px",
+                    maxWidth: "100%",
+                    inset: "50% auto auto 50%",
                     transform: "translate(-50%, -50%)",
                     height: "auto",
                 }

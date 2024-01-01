@@ -112,32 +112,43 @@ export default function Audio({dir, selected, afterDelete, updateSidebar, revKey
             <div className="max-w-lg mx-auto py-8">
                 {{
                     "no_check": (
-                        <p>No information is currently saved about this transcription job.</p>
+                        <p className="text-xl font-bold mb-4">No information is currently saved about this transcription job.</p>
                     ),
                     "in_progress": (
-                        <p>Your transcription is uploaded to rev.ai and will be done in a few minutes.</p>
+                        <p className="text-xl font-bold mb-4">Your audio file is uploaded to rev.ai and will be transcribed in a few minutes.</p>
                     ),
                     "transcribed": (
                         <>
-                            <p>Your transcription is complete.</p>
+                            <p className="text-xl font-bold mb-4">Your transcription is complete.</p>
                             <p>Length (seconds): {contents.duration_seconds}</p>
                         </>
                     ),
                     "failed": (
                         <>
-                            <p>Your transcription job failed.</p>
+                            <p className="text-xl font-bold mb-4">Your transcription job failed.</p>
                             <p>Details: {contents.failure_detail}</p>
                         </>
                     )
                 }[contents.status]}
-                <p>id: {contents.id}</p>
-                <p>status: {contents.status}</p>
-                <p>path: {contents.path}</p>
+                <table className="table-auto font-mono text-sm my-8">
+                    <tr>
+                        <td className="p-2 border font-semibold">ID</td>
+                        <td className="p-2 border">{contents.id}</td>
+                    </tr>
+                    <tr>
+                        <td className="p-2 border font-semibold">Path</td>
+                        <td className="p-2 border">{contents.path}</td>
+                    </tr>
+                    <tr>
+                        <td className="p-2 border font-semibold">Status</td>
+                        <td className="p-2 border">{contents.status}</td>
+                    </tr>
+                </table>
                 {["no_check", "in_progress"].includes(contents.status) && (
-                    <button disabled={isLoading} onClick={onRevLoad} className="px-4 py-1 text-sm text-white bg-gray-800 disabled:opacity-25">{isLoading ? "Loading..." : "Refresh"}</button>
+                    <button disabled={isLoading} onClick={onRevLoad} className="accent-button">{isLoading ? "Loading..." : "Refresh"}</button>
                 )}
                 {["transcribed"].includes(contents.status) && (
-                    <button disabled={isLoading} onClick={createInterview} className="px-4 py-1 text-sm text-white bg-gray-800 disabled:opacity-25">{isLoading ? "Loading..." : "Load transcript as interview"}</button>
+                    <button disabled={isLoading} onClick={createInterview} className="accent-button">{isLoading ? "Loading..." : "Load transcript as interview"}</button>
                 )}
             </div>
         </Container>

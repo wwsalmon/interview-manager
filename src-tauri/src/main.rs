@@ -4,7 +4,6 @@
 extern crate reqwest;
 extern crate json;
 
-use std::time::Duration;
 use std::path::Path;
 
 use reqwest::header::{AUTHORIZATION, ACCEPT};
@@ -13,30 +12,6 @@ use reqwest::{multipart, Body};
 use tokio::fs::File;
 use tokio_util::codec::{BytesCodec, FramedRead};
 use mime_guess::from_path;
-
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-async fn get_meta_from_url(url: &str) -> Result<String, String> {
-    println!("{:?}", url);
-
-    let client = reqwest::Client::builder().timeout(Duration::new(5, 0)).build().map_err(|e| e.to_string())?;
-
-    let res = client.get(url).send().await;
-
-    let ret = match res {
-        Ok(body) => {
-            let res2 = body.text().await.map_err(|e| e.to_string()).into();
-            let ret2 = match res2 {
-                Ok(body) => Ok(body.into()),
-                Err(error) => Err(error.into())
-            };
-            return ret2;
-        },
-        Err(error) => Err(error.to_string())
-    };
-
-    ret
-}
 
 #[tauri::command]
 async fn upload_rev(path: &str, key: &str) -> Result<String, String> {
@@ -153,7 +128,6 @@ async fn transcript_rev(id: &str, key: &str) -> Result<String, String> {
 fn main() {
     let firstmenu = Submenu::new("App", Menu::new()
         .add_native_item(MenuItem::Quit)
-        .add_item(CustomMenuItem::new("settings", "Settings").accelerator("cmdOrControl+,"))
     );
 
     let filemenu = Submenu::new("File", Menu::new()
@@ -183,7 +157,7 @@ fn main() {
         .add_submenu(windowmenu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![get_meta_from_url, upload_rev, check_rev, transcript_rev])
+        .invoke_handler(tauri::generate_handler![upload_rev, check_rev, transcript_rev])
         .menu(menu)
         .on_menu_event(|event| match event.menu_item_id() {
             "open" => {
@@ -194,9 +168,6 @@ fn main() {
             }
             "save" => {
                 let _ = event.window().emit("menu-event", "save-event");
-            }
-            "settings" => {
-                let _ = event.window().emit("menu-event", "settings-event");
             }
             _ => {}
         })
