@@ -78,6 +78,7 @@ export default function App() {
 
   const [settings, setSettings] = useState<Settings | null>(null);
   const [newRevKey, setNewRevKey] = useState<string>("");
+  const [isEditKey, setIsEditKey] = useState<boolean>(false);
 
   const [isSettingLoading, setIsSettingLoading] = useState<boolean>(false);
 
@@ -103,6 +104,7 @@ export default function App() {
     }
 
     setSettings(newSettings);
+    setNewRevKey(newSettings.revKey);
   }
 
   useEffect(() => {
@@ -215,9 +217,7 @@ export default function App() {
 
   async function onSave(newSettings: Settings) {
       if (isSettingLoading) return;
-  
       setIsSettingLoading(true);
-
       const hasSettingsDir = await exists("", {dir: BaseDirectory.AppConfig});
 
       if (!hasSettingsDir) {
@@ -227,8 +227,8 @@ export default function App() {
       await writeTextFile("settings.json", JSON.stringify(newSettings), {dir: BaseDirectory.AppConfig});
   
       setSettings(newSettings);
-  
       setIsSettingLoading(false);
+      setIsEditKey(false);
   }
   
   async function onSaveRevKey() {
@@ -303,7 +303,7 @@ export default function App() {
           {/* HOME UI */}
           {/* HOME UI */}
           {/* HOME UI */}
-          <div className="max-w-md p-8 bg-white shadow-lg mx-auto mt-16 rounded-lg">
+          <div className="max-w-md p-8 bg-white shadow-lg mx-auto mt-16 rounded-lg overflow-y-auto max-h-[calc(100vh-80px)]">
             <div className="flex items-center gap-8">
               <img src="/3dlogo.png" alt="szhim logo" className="h-16"/>
               <div>
@@ -315,7 +315,7 @@ export default function App() {
               <>
                 <p className="mt-6">Loading settings...</p>
               </>
-            ) : (settings?.revKey) ? (
+            ) : (settings?.revKey && !isEditKey) ? (
               <>
                 <div className="flex items-center gap-4 my-12">
                   <p className="opacity-50 text-sm">Open a project folder (any folder) to save interviews and transcripts to.</p>
@@ -334,6 +334,11 @@ export default function App() {
                 )) : (
                   <p>No recently opened projects.</p>
                 )}
+                <label className="uppercase text-xs font-bold mb-4 border-t pt-6 mt-6 block opacity-50">Rev.ai access token</label>
+                <div className="flex items-center gap-2">
+                  <input type="text" readOnly={true} value={settings.revKey} className="rounded px-1 py-[2px] text-xs font-mono border w-full"/>
+                  <button className="text-xs px-1 py-[2px] rounded border opacity-25 hover:opacity-50" onClick={() => setIsEditKey(true)}>Edit</button>
+                </div>
               </>
             ) : (
               <>
