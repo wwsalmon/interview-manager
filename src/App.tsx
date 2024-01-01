@@ -67,16 +67,6 @@ export function updateRecent(thisDir: string, setSettings: Dispatch<SetStateActi
     });
 }
 
-async function getMetaFromUrl(url: string) {
-    const message = await invoke("get_meta_from_url", {url});
-    const parser = new DOMParser();
-    const html = parser.parseFromString(message as string, "text/html");
-    const name = html.querySelector("meta[property='og:title']")?.getAttribute("content") || html.querySelector("title")?.innerHTML || "";
-    const pub = html.querySelector("meta[property='og:site_name']")?.getAttribute("content") || getRoot(url);
-    const date = html.querySelector("meta[property='article:published_time']")?.getAttribute("content")?.substring(0, 10) || "";
-    return {name, pub, date};
-}
-
 export default function App() {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isOpenLoading, setIsOpenLoading] = useState<boolean>(false);
