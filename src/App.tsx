@@ -236,7 +236,7 @@ export default function App() {
     const filteredContent = contents
         .filter(d => [d.name, "body" in d ? d.body : "", "notes" in d ? d.notes : "", "url" in d ? d.url : "", "pub" in d ? d.pub : ""].some(x => x.toLowerCase().includes(searchString.toLowerCase())));
 
-    const version = "0.1.3";
+    const version = "0.2.0";
 
     return (
         <div>
