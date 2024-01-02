@@ -3,6 +3,7 @@ import { invoke } from "@tauri-apps/api";
 import short from "short-uuid";
 import { BaseDirectory, writeTextFile } from "@tauri-apps/api/fs";
 import { open } from "@tauri-apps/api/dialog";
+// import formatDG, { DGResponse } from "../utils/formatDG";
 
 export default function NewFile({ setIsNewModal, dir, afterOpen, setSelected, revKey }: { setIsNewModal: Dispatch<SetStateAction<boolean>>, dir: string, afterOpen: () => Promise<any>, setSelected: Dispatch<SetStateAction<string>>, revKey?: string }) {
     const [audioFile, setAudioFile] = useState<string>("");
@@ -26,8 +27,21 @@ export default function NewFile({ setIsNewModal, dir, afterOpen, setSelected, re
         if (!audioFile || !revKey) return;
 
         try {
+            // const startTime = Date.now();
+
             const res = await invoke("upload_rev", {path: audioFile, key: revKey });
             const parsed = JSON.parse(res as string);
+
+            // 
+            // const endTime = Date.now();
+            // const elapsedTime = endTime - startTime;
+            // console.log(`Elapsed time: ${elapsedTime}ms`);
+            // console.log(parsed);
+            // console.log(formatDG(parsed as DGResponse));
+
+            // setAudioLoading(false);
+
+            // return;
 
             const newName = audioFile.split("/").pop()?.replace(/(^.*)\..*$/, "$1") || "Untitled";
             const fileName = encodeURIComponent(newName).substring(0, 20) + "-" + short.generate() + ".szha";

@@ -14,6 +14,35 @@ use tokio_util::codec::{BytesCodec, FramedRead};
 use mime_guess::from_path;
 
 #[tauri::command]
+async fn upload_dg(path: &str, key: &str) -> Result<String, String> {
+    let file = File::open(path).await.map_err(|e| e.to_string())?;
+
+    let client = reqwest::Client::new();
+
+    let res = client
+        .post("https://api.deepgram.com/v1/listen?smart_format=true&punctuate=true&diarize=true&language=en&model=nova-2")
+        .body(file)
+        .header(AUTHORIZATION, format!("Token {}", key))
+        .send()
+        .await
+        .map_err(|e| e.to_string());
+
+    let ret = match res {
+        Ok(body) => {
+            let res2 = body.text().await.map_err(|e| e.to_string()).into();
+            let ret2 = match res2 {
+                Ok(body) => Ok(body.into()),
+                Err(error) => Err(error.into())
+            };
+            return ret2;
+        },
+        Err(error) => Err(error.to_string())
+    };
+    
+    return ret
+}
+
+#[tauri::command]
 async fn upload_rev(path: &str, key: &str) -> Result<String, String> {
     println!("{} {}", path, key);
 
@@ -157,7 +186,7 @@ fn main() {
         .add_submenu(windowmenu);
 
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![upload_rev, check_rev, transcript_rev])
+        .invoke_handler(tauri::generate_handler![upload_rev, check_rev, transcript_rev, upload_dg])
         .menu(menu)
         .on_menu_event(|event| match event.menu_item_id() {
             "open" => {
