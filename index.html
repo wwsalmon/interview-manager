@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Manager: transcribe interviews in one click</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+<body>  
+    <div class="sticky top-0 left-0 w-full h-12 flex items-center justify-center bg-beige font-mono font-bold text-sm z-10 shadow">
+        szh interview manager
+    </div>
+    <div class="bg-gradient-to-b from-beige to-white text-center pt-1 px-4">
+        <img src="./img/logo.png" alt="Interview Manager logo" class="h-16 sm:h-24 my-8 sm:my-16 block mx-auto">
+        <h1 class="text-2xl sm:text-5xl font-bold mb-4 sm:mb-8">Transcribe interviews in one click</h1>
+        <p class="sm:text-2xl mb-4 sm:mb-8">Fast and accurate audio transcription for journalists</p>
+        <a href="" class="font-mono text-white text-sm sm:text-lg font-semibold px-4 py-3 bg-accent inline-block hover:brightness-90 rounded mb-4 sm:mb-8">Download for Mac and Windows</a>
+        <p class="font-medium opacity-50 mb-2 text-sm sm:text-base">Battle-tested at</p>
+        <a href="https://www.sacbee.com/" target="_blank">
+            <img src="./img/sacbee.svg" alt="Sacramento Bee logo" class="h-4 sm:h-6 block mx-auto mb-8">
+        </a>
+    </div>
+    <div class="text-center px-4">
+        <img src="./img/hero.png" alt="" class="max-w-6xl block mx-auto w-full">
+        <h2 class="text-xl sm:text-3xl font-bold mt-24 mb-2">Accurate transcriptions using Rev.ai</h2>
+        <p class="sm:text-xl mb-8">Interview Manager will always be free, but you’ll need a <a href="https://www.rev.ai/" class="underline" target="_blank">Rev.ai account</a> to use it.</p>
+    </div>
+    <div class="w-full bg-beige">
+        <img src="./img/rev.png" alt="Screenshot of Interview Manager asking for Rev.ai access token" class="max-w-sm mx-auto w-full">
+    </div>
+    <div class="text-center px-4">
+        <h2 class="text-xl sm:text-3xl font-bold mt-24 mb-2">Made for journalists, by journalists</h2>
+        <p class="sm:text-xl mb-8">Relied on for high-quality, high-impact journalism at the Sacramento Bee and elsewhere</p>
+    </div>
+    <div class="w-full bg-beige px-4 py-12">
+        <img src="./img/relied-sacbee.png" alt="Collage of three Sacramento Bee stories for which Interview Manager was used" class="max-w-5xl mx-auto w-full">
+    </div>
+    <div class="max-w-md mx-auto px-4 py-12 prose prose-neutral">
+        <h2>Why use Interview Manager instead of Otter.ai or Descript?</h2>
+        <ul>
+            <li><strong>Infinite file uploads.</strong> No need to record through the app, no weird quotas on how many files you can upload per month. Record in Voice Memos or any other app, upload to IM, get a transcript.</li>
+            <li><strong>Better accuracy.</strong> I, and others who switched from Otter.ai to IM, have found IM to produce more accurate transcriptions for most interviews and recordings. Really, Rev.ai is surprisingly good.</li>
+            <li><strong>Straightforward text transcripts.</strong> No more accidentally copying timecodes or weird formatting. IM transcripts display directly as pure text.</li>
+            <li><strong>Access transcripts offline.</strong> Transcripts live on your computer as text files. You don't need to log in to any website to access them.</li>
+        </ul>
+        <h2>How does it work?</h2>
+        <p>Upload an audio file (.mp3, .m4a, .wav), get an automatic transcript. Interview Manager is, at its core, a client for a transcription API called <a href="https://www.rev.ai/">Rev.ai</a>. It has a few extra features, like letting you save transcripts in projects and take notes alongside the transcripts.</p>
+        <p>Check the source code out on GitHub: <a href="https://github.com/wwsalmon/interview-manager">github.com/wwsalmon/interview-manager</a></p>
+        <h2>Why Rev.ai?</h2>
+        <p>It's the most accurate out of everything I've tried. I've been looking at potentially switching to <a href="https://deepgram.com/">Deepgram</a> because it's much cheaper (~$0.25/hour instead of $1.25/hour, ~800 free hours instead of 5) but its performance has been worse on test audio.</p>
+        <h2>Why did you make this?</h2>
+        <p>I was <a href="https://www.sacbee.com/profile/275881366">working at the Sacramento Bee</a> and needed to transcribe a lot of interviews, and keep track of them.</p>
+        <p>I didn't need the bells and whistles (and usage quotas and weird limitations) of apps like <a href="https://otter.ai/">Otter.ai</a> and <a href="https://www.descript.com/">Descript</a>, so I made my own.</p>
+        <h2>Is using Interview Manager cheaper than Otter.ai or Descript?</h2>
+        <p>In all honesty, at the moment, I'm not convinced that it is. I was spending about $20/month of Rev.ai credits through Interview Manager while working full-time at the Bee. If you're not spending 8 hours a day interviewing people and transcribing interviews, obviously it will be cheaper for you, and this is still pretty much the ball park of higher tier plans for other apps. But I'm working on finding a cheaper -- and eventually, completely free, on-device -- solution.</p>
+    </div>
+</body>
+</html>
